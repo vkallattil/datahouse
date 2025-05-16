@@ -1,4 +1,6 @@
 from typing import Callable, Dict, Optional
+import json
+from modules.web import get_search_results
 
 class CommandRegistry:
     def __init__(self):
@@ -44,10 +46,11 @@ def help_command(args: str) -> str:
 def echo_command(args: str) -> str:
     return args
 
+@registry.register("search")
+def search_command(args: str) -> str:
+    results = get_search_results(args)
+    return json.dumps([{"link": result["link"], "title": result["title"], "snippet": result["snippet"]} for result in results], indent=2)
+
 @registry.register("crawl")
 def crawl_command(args: str) -> str:
     return "TODO: Crawl Tool Implementation"
-
-@registry.register("search")
-def search_command(args: str) -> str:
-    return "TODO: Search Tool Implementation"

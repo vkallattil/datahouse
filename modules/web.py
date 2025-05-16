@@ -92,17 +92,13 @@ def extract_text_from_page(page: BeautifulSoup) -> str:
     Returns:
         str: Cleaned and extracted text content
     """
-    try:
-        for script in page(['script', 'style']):
-            script.decompose()
+    for script in page(['script', 'style']):
+        script.decompose()
 
-        content = page.find_all(['article', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
-        clean_text = [element.get_text(strip=True) for element in content if element.get_text(strip=True)]
-        return "\n\n".join(clean_text)
+    content = page.find_all(['article', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
+    clean_text = [element.get_text(strip=True) for element in content if element.get_text(strip=True)]
+    return "\n\n".join(clean_text)
     
-    except Exception as e:
-        logger.error(f"Error extracting text from page: {e}")
-
 def get_search_results(query: str) -> Optional[Dict]:
     """
     Perform a search query using Google Custom Search API.
@@ -126,6 +122,7 @@ def get_search_results(query: str) -> Optional[Dict]:
     
     except requests.RequestException as e:
         logger.error(f"Error making search request: {e}")
+        
         return None
 
 def get_pages_from_search_results(results: List[Dict]) -> List[Dict]:

@@ -11,6 +11,7 @@ def handle_input(user_input: str) -> str:
     Handle user input and save it to memory.
     Supports commands starting with '/' and regular input.
     """
+    
     if user_input.startswith('/'):
         # Split into command and args
         parts = user_input[1:].split(maxsplit=1)
