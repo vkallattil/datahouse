@@ -1,17 +1,17 @@
 [
   {
-    "timestamp": "2025-05-16T02:49:20.767818",
+    "timestamp": "2025-05-16T03:10:33.338986",
     "user_input": "/help",
-    "assistant_response": "Available commands:\n/exit\n/clear\n/help\n/echo"
+    "assistant_response": "Available commands:\n/exit\n/clear\n/help\n/echo\n/crawl\n/search"
   },
   {
-    "timestamp": "2025-05-16T02:49:33.198015",
-    "user_input": "\u001b[A\u001b[A",
-    "assistant_response": "Processed: \u001b[A\u001b[A"
+    "timestamp": "2025-05-16T03:10:37.960923",
+    "user_input": "/crawl",
+    "assistant_response": "TODO: Crawl Tool Implementation"
   },
   {
-    "timestamp": "2025-05-16T02:49:35.561522",
-    "user_input": "clear",
-    "assistant_response": "Processed: clear"
+    "timestamp": "2025-05-16T03:10:42.975398",
+    "user_input": "/search",
+    "assistant_response": "TODO: Search Tool Implementation"
   }
 ]
