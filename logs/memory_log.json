@@ -1,0 +1,17 @@
+[
+  {
+    "timestamp": "2025-05-16T02:49:20.767818",
+    "user_input": "/help",
+    "assistant_response": "Available commands:\n/exit\n/clear\n/help\n/echo"
+  },
+  {
+    "timestamp": "2025-05-16T02:49:33.198015",
+    "user_input": "\u001b[A\u001b[A",
+    "assistant_response": "Processed: \u001b[A\u001b[A"
+  },
+  {
+    "timestamp": "2025-05-16T02:49:35.561522",
+    "user_input": "clear",
+    "assistant_response": "Processed: clear"
+  }
+]

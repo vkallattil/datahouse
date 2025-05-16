@@ -1,0 +1,46 @@
+DataHouse Technical Overview 5/15/25
+
+Vision
+
+Build an enterprise-grade agent system capable of:
+* Autonomous web crawling
+* Intelligent content analysis
+* Scheduled, user prompted, or event driven task execution.
+* Seamless integration with tools and infrastructure
+
+Current State
+* Interface: Basic CLI with JSON-based memory persistence
+* Experimental Modules:
+    * Language: NLP capabilities using spaCy (NER, summarization)
+    * Web: Basic web crawling and search functionality
+    * Core: Minimal orchestration layer
+* Integration: Manual coordination through the CLI
+
+Next Iteration Plan (1-Month Sprint)
+Weeks 1–2: Module Enhancement
+* Strengthen existing modules with:
+    * Robust error handling
+    * Configurability
+    * Unit and integration tests
+* Add vector storage for semantic search
+* Improve web crawling with:
+    * Parallel processing
+    * Rate limiting
+* Implement content classification logic
+Week 3: Agent Infrastructure
+* Design tool interfaces based on observed manual usage patterns
+* Build a basic agent framework
+* Enable simple task orchestration
+Week 4: Integration & UI
+* Connect all modules through the agent framework
+* Develop a basic user interface (UI)
+* Complete documentation and final testing
+
+Long-Term Goals
+* Fully autonomous web indexing and search
+* Hardware integration (for sensors, edge computing, etc.)
+* Advanced task scheduling and execution capabilities
+* Distributed system for both processing and storage
+
+Development Philosophy
+Manual-first, automate-later: Build systems manually first to ensure usability, test robustness, and evolve interfaces naturally before introducing automation.
