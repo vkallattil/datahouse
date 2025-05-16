@@ -23,3 +23,6 @@ build/
 # Testing
 .coverage
 htmlcov/
+
+# Log Store
+logs/
