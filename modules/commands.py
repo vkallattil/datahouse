@@ -1,6 +1,28 @@
 from typing import Callable, Dict, Optional
 import json
-from modules.web import get_search_results
+from modules.web import get_google_search_results
+from abc import ABC, abstractmethod
+
+class Response(ABC):
+    @abstractmethod
+    def to_string(self) -> str:
+        pass
+    
+class StringResponse(Response):
+    def __init__(self, text: str):
+        self.text = text
+
+    def to_string(self) -> str:
+        return self.text
+
+class MenuResponse(Response):
+    def __init__(self, prompt: str, options: list):
+        self.prompt = prompt
+        self.options = options
+
+    def to_string(self) -> str:
+        # Summarize for memory log
+        return f"[Menu] {self.prompt} ({len(self.options)} options)"
 
 class CommandRegistry:
     def __init__(self):
@@ -12,7 +34,7 @@ class CommandRegistry:
             return func
         return decorator
     
-    def execute(self, command: str, args: str) -> Optional[str]:
+    def execute(self, command: str, args: str) -> Optional[Response]:
         if command in self.commands:
             return self.commands[command](args)
         return None
@@ -39,18 +61,21 @@ def clear_command(args: str) -> str:
     raise CommandClear()
 
 @registry.register("help")
-def help_command(args: str) -> str:
-    return "Available commands:\n" + "\n".join(f"/{cmd}" for cmd in registry.commands.keys())
+def help_command(args: str) -> Response:
+    return StringResponse("Available commands:\n" + "\n".join(f"/{cmd}" for cmd in registry.commands.keys()))
 
 @registry.register("echo")
-def echo_command(args: str) -> str:
-    return args
+def echo_command(args: str) -> Response:
+    return StringResponse(args)
 
 @registry.register("search")
-def search_command(args: str) -> str:
-    results = get_search_results(args)
-    return json.dumps([{"link": result["link"], "title": result["title"], "snippet": result["snippet"]} for result in results], indent=2)
+def search_command(args: str) -> Response:
+    results = get_google_search_results(args)
+    if results is None:
+        return StringResponse("Error: Failed to retrieve search results")
+    
+    return MenuResponse("Select a search result to open: ", results)
 
 @registry.register("crawl")
-def crawl_command(args: str) -> str:
-    return "TODO: Crawl Tool Implementation"
+def crawl_command(args: str) -> Response:
+    return StringResponse("TODO: Crawl Tool Implementation")

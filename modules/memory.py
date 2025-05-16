@@ -60,6 +60,7 @@ class JsonMemoryLog(MemoryLog):
         """
         
         if not os.path.exists(self.path):
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
             with open(self.path, 'w') as f:
                 json.dump([], f)
 

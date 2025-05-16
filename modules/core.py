@@ -1,6 +1,8 @@
 from modules.memory import JsonMemoryLog
-from modules.commands import registry, CommandExit, CommandClear
+from modules.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse
 import os
+from prompt_toolkit.shortcuts import radiolist_dialog
+import webbrowser
 
 PATH_TO_MEMORY_LOG = "logs/memory_log.json"
 
@@ -13,27 +15,40 @@ def handle_input(user_input: str) -> str:
     """
     
     if user_input.startswith('/'):
-        # Split into command and args
         parts = user_input[1:].split(maxsplit=1)
         command = parts[0].lower()
         args = parts[1] if len(parts) > 1 else ""
-        
-        # Execute command if it exists
         result = registry.execute(command, args)
         if result is not None:
-            memory.save(user_input, result)
+            memory.save(user_input, result.to_string())
             return result
-        
-        return f"Unknown command: {command}"
+        return StringResponse(f"Unknown command: {command}")
     
-    # Handle regular input
-    response = "Processed: " + user_input
-    memory.save(user_input, response)
+    response = StringResponse("Processed: " + user_input)
+    memory.save(user_input, response.to_string())
     return response
 
 def display_initial_prompt():
     print("KTI Assistant (Phase 1 CLI):")
     print("Type '/help' for a list of commands.")
+
+def handle_menu(menu_result):
+    # Prepare choices for the menu: (value, label)
+    choices = [
+        (opt['link'], f"{i+1}. {opt['title']}")
+        for i, opt in enumerate(menu_result.options)
+    ]
+    
+    # Show the menu and get the selected link
+    result = radiolist_dialog(
+        title="Menu",
+        text=menu_result.prompt,
+        values=choices,
+        ok_text="Open",
+        cancel_text="Cancel"
+    ).run()
+
+    return result
 
 def run_assistant_cli():
     """
@@ -46,6 +61,14 @@ def run_assistant_cli():
         try:
             user_input = input(">> ")
             response = handle_input(user_input)
+            if hasattr(response, "options") and hasattr(response, "prompt"):
+                selected_link = handle_menu(response)
+                if selected_link:
+                    print(f"Opening: {selected_link}")
+                    webbrowser.open(selected_link)
+                else:
+                    print("Cancelled.")
+                continue
             print(response)
         except CommandExit:
             break

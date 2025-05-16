@@ -99,7 +99,7 @@ def extract_text_from_page(page: BeautifulSoup) -> str:
     clean_text = [element.get_text(strip=True) for element in content if element.get_text(strip=True)]
     return "\n\n".join(clean_text)
     
-def get_search_results(query: str) -> Optional[Dict]:
+def get_google_search_results(query: str) -> Optional[Dict]:
     """
     Perform a search query using Google Custom Search API.
     
@@ -118,7 +118,7 @@ def get_search_results(query: str) -> Optional[Dict]:
         response = requests.get(url, timeout=15)
         response.raise_for_status()  # Raise exception for 4XX/5XX responses
         
-        return response.json()["items"]
+        return [{"link": item["link"], "title": item["title"], "snippet": item["snippet"]} for item in response.json()["items"]]
     
     except requests.RequestException as e:
         logger.error(f"Error making search request: {e}")
