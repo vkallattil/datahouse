@@ -25,4 +25,4 @@ build/
 htmlcov/
 
 # Log Store
-logs/
+/logs/
