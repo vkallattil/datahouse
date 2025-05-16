@@ -3,6 +3,9 @@ from modules.commands import registry, CommandExit, CommandClear, MenuResponse, 
 import os
 from prompt_toolkit.shortcuts import radiolist_dialog
 import webbrowser
+from prompt_toolkit.shortcuts import print_formatted_text as print
+from prompt_toolkit import prompt
+from prompt_toolkit.history import FileHistory
 
 PATH_TO_MEMORY_LOG = "logs/memory_log.json"
 
@@ -56,10 +59,11 @@ def run_assistant_cli():
     """
     
     display_initial_prompt()
+    history = FileHistory("logs/cli_history.txt")
     
     while True:
         try:
-            user_input = input(">> ")
+            user_input = prompt(">> ", history=history)
             response = handle_input(user_input)
             if hasattr(response, "options") and hasattr(response, "prompt"):
                 selected_link = handle_menu(response)
@@ -69,7 +73,7 @@ def run_assistant_cli():
                 else:
                     print("Cancelled.")
                 continue
-            print(response)
+            print(response.to_string())
         except CommandExit:
             break
         except CommandClear:
