@@ -8,7 +8,8 @@ Build an enterprise-grade agent system and intelligence platform capable of:
 * Seamless integration with tools and infrastructure
 
 Immediate Goals
-* Strengthen existing modules with:
-    * Robust error handling
-    * Configurability
-    * Unit and integration tests
+* Experiment with the web module functions and pick a few to flesh out and integrate with the command registry.
+
+Backlog Goals
+* Strategic error handling
+* Unit testing
