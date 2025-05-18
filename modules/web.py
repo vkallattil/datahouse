@@ -118,7 +118,12 @@ def get_google_search_results(query: str) -> Optional[Dict]:
         response = requests.get(url, timeout=15)
         response.raise_for_status()  # Raise exception for 4XX/5XX responses
         
-        return [{"link": item["link"], "title": item["title"], "snippet": item["snippet"]} for item in response.json()["items"]]
+        return [
+            {
+                "link": item["link"] if "link" in item else item["formattedUrl"], 
+                "title": item["title"] if "title" in item else item["name"], "snippet": item["snippet"] if "snippet" in item else None
+            } for item in response.json()["items"]
+        ]
     
     except requests.RequestException as e:
         logger.error(f"Error making search request: {e}")

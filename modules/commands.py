@@ -1,5 +1,6 @@
 from typing import Callable, Dict, Optional
 import json
+import webbrowser
 from modules.web import get_google_search_results
 from abc import ABC, abstractmethod
 from prompt_toolkit import print_formatted_text as print
@@ -15,9 +16,17 @@ class StringResponse(Response):
 
     def to_string(self) -> str:
         return self.text
+    
+class MenuOption:
+    def __init__(self, label: str, action: Callable):
+        self.label = label
+        self.action = action
+
+    def __str__(self):
+        return self.label
 
 class MenuResponse(Response):
-    def __init__(self, prompt: str, options: list):
+    def __init__(self, prompt: str, options: list[MenuOption]):
         self.prompt = prompt
         self.options = options
 
@@ -69,13 +78,25 @@ def help_command(args: str) -> Response:
 def echo_command(args: str) -> Response:
     return StringResponse(args)
 
+def create_open_action(link):
+    return lambda: webbrowser.open(link)
+
 @registry.register("search")
 def search_command(args: str) -> Response:
     results = get_google_search_results(args)
     if results is None:
         return StringResponse("Error: Failed to retrieve search results")
     
-    return MenuResponse("Select a search result to open: ", results)
+    options = []
+    for result in results:
+        options.append(
+            MenuOption(
+                label=result["link"], 
+                action=create_open_action(result["link"])
+            )
+        )
+    
+    return MenuResponse("Select a search result to open: ", options)
 
 @registry.register("crawl")
 def crawl_command(args: str) -> Response:

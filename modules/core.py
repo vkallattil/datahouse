@@ -1,17 +1,14 @@
+from typing import Callable
 from modules.memory import JsonMemoryLog
-from modules.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse
+from modules.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
 import os
-from prompt_toolkit.shortcuts import radiolist_dialog
-import webbrowser
-from prompt_toolkit.shortcuts import print_formatted_text as print
-from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit import prompt
 
-PATH_TO_MEMORY_LOG = "logs/memory_log.json"
+memory = JsonMemoryLog("logs/memory_log.json")
+history = FileHistory("logs/command_log.txt")
 
-memory = JsonMemoryLog(PATH_TO_MEMORY_LOG)
-
-def handle_input(user_input: str) -> str:
+def handle_input(user_input: str) -> Response:
     """
     Handle user input and save it to memory.
     Supports commands starting with '/' and regular input.
@@ -21,37 +18,43 @@ def handle_input(user_input: str) -> str:
         parts = user_input[1:].split(maxsplit=1)
         command = parts[0].lower()
         args = parts[1] if len(parts) > 1 else ""
-        result = registry.execute(command, args)
-        if result is not None:
-            memory.save(user_input, result.to_string())
-            return result
+        response = registry.execute(command, args)
+        if response is not None:
+            memory.save(user_input, response.to_string())
+            
+            return response
         return StringResponse(f"Unknown command: {command}")
     
     response = StringResponse("Processed: " + user_input)
     memory.save(user_input, response.to_string())
     return response
 
+def handle_menu(menu_response: MenuResponse):
+    print(menu_response.prompt)
+
+    for i, option in enumerate(menu_response.options):
+        print(f"{i+1}. {option.label}")
+
+    selected_option = input("Pick an option (or q to cancel): ")
+
+    if selected_option == "q":
+        return None
+    
+    if not selected_option.isdigit():
+        print("Invalid option selected")
+        return None
+    
+    selected_index = int(selected_option) - 1
+    
+    if selected_index < 0 or selected_index >= len(menu_response.options):
+        print("Invalid option selected")
+        return None
+
+    menu_response.options[selected_index].action()
+
 def display_initial_prompt():
     print("KTI Assistant (Phase 1 CLI):")
     print("Type '/help' for a list of commands.")
-
-def handle_menu(menu_result):
-    # Prepare choices for the menu: (value, label)
-    choices = [
-        (opt['link'], f"{i+1}. {opt['title']}")
-        for i, opt in enumerate(menu_result.options)
-    ]
-    
-    # Show the menu and get the selected link
-    result = radiolist_dialog(
-        title="Menu",
-        text=menu_result.prompt,
-        values=choices,
-        ok_text="Open",
-        cancel_text="Cancel"
-    ).run()
-
-    return result
 
 def run_assistant_cli():
     """
@@ -59,21 +62,17 @@ def run_assistant_cli():
     """
     
     display_initial_prompt()
-    history = FileHistory("logs/cli_history.txt")
     
     while True:
         try:
             user_input = prompt(">> ", history=history)
             response = handle_input(user_input)
+
             if hasattr(response, "options") and hasattr(response, "prompt"):
-                selected_link = handle_menu(response)
-                if selected_link:
-                    print(f"Opening: {selected_link}")
-                    webbrowser.open(selected_link)
-                else:
-                    print("Cancelled.")
-                continue
-            print(response.to_string())
+                handle_menu(response)
+            else:
+                print(response.to_string())
+
         except CommandExit:
             break
         except CommandClear:

@@ -1,15 +1,7 @@
 DataHouse Technical Overview 5/15/25
 
 Vision
-Build an enterprise-grade agent system and intelligence platform capable of:
-* Autonomous web crawling
-* Intelligent content sourcing, analysis, and storage
-* Scheduled, user prompted, or event driven task execution.
-* Seamless integration with tools and infrastructure
-
-Immediate Goals
-* Experiment with the web module functions and pick a few to flesh out and integrate with the command registry.
-
-Backlog Goals
-* Strategic error handling
-* Unit testing
+Build an enterprise-grade agent system and intelligence platform capable of concurrently running the following operations:
+* Doing market research and reporting insights to the user.
+* Translating business problems into technical documentation and solution architecture.
+* Autonomous development agent sprints with human-in-the-loop.

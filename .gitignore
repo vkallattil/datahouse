@@ -26,3 +26,6 @@ htmlcov/
 
 # Log Store
 /logs/
+
+# Cursor Context
+/cursorcontext.txt
