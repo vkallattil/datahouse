@@ -1,122 +1,145 @@
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Union
 from datetime import date
-from proforma import (
-    PropertyInfo, PurchaseDetails, Financing, RentalUnit, 
-    IncomeProjections, OperatingExpenses, SaleAssumptions, 
-    RealEstateProForma, CapitalExpenditure
-)
+import uuid
 
-# Step 1: Define property information
-property_info = PropertyInfo(
-    property_name="Sunrise Apartments",
-    address="123 Main Street, Anytown, USA",
-    property_type="Multifamily",
-    year_built=1995,
-    square_footage=12000,
-    num_units=8,
-    lot_size=0.5,
-    parking_spaces=12,
-    amenities=["Laundry Room", "Storage Units"]
-)
+@dataclass
+class Income:
+    """Container for all income-related items"""
+    rental_income: float = 0.0
+    other_income: float = 0.0
+    vacancy_loss: float = 0.0
+    
+    @property
+    def effective_gross_income(self) -> float:
+        """Calculate Effective Gross Income"""
+        return self.rental_income + self.other_income - self.vacancy_loss
 
-# Step 2: Define purchase details
-purchase_details = PurchaseDetails(
-    purchase_price=1200000,
-    closing_date=date(2023, 6, 15),
-    closing_costs=8500,
-    transfer_tax=6000,
-    legal_fees=3500,
-    title_insurance=2200,
-    broker_fees=36000
-)
+@dataclass
+class Expenses:
+    """Container for all expense-related items"""
+    operating_expenses: Dict[str, float] = field(default_factory=dict)
+    
+    @property
+    def total_operating_expenses(self) -> float:
+        """Calculate total operating expenses"""
+        return sum(self.operating_expenses.values())
 
-# Step 3: Define financing structure
-financing = Financing(
-    loan_amount=900000,  # 75% LTV
-    interest_rate=0.055,  # 5.5%
-    loan_term=10,
-    amortization_period=30,
-    loan_type="Fixed",
-    origination_fee=4500
-)
+@dataclass
+class Financing:
+    """Container for debt financing information"""
+    loan_amount: float = 0.0
+    interest_rate: float = 0.0  # Annual rate as decimal (e.g., 0.05 for 5%)
+    term_years: int = 30
+    amortization_years: int = 30
+    
+    @property
+    def annual_debt_service(self) -> float:
+        """Calculate annual debt service using standard amortization"""
+        if self.loan_amount <= 0 or self.interest_rate <= 0:
+            return 0.0
+            
+        monthly_rate = self.interest_rate / 12
+        num_payments = self.amortization_years * 12
+        
+        if monthly_rate == 0:
+            monthly_payment = self.loan_amount / num_payments
+        else:
+            monthly_payment = self.loan_amount * (monthly_rate * (1 + monthly_rate)**num_payments) / ((1 + monthly_rate)**num_payments - 1)
+            
+        return monthly_payment * 12
 
-# Step 4: Define rental units
-units = [
-    RentalUnit(unit_type="1BR", count=4, size_sq_ft=650, monthly_rent=1200, vacancy_rate=0.05),
-    RentalUnit(unit_type="2BR", count=4, size_sq_ft=850, monthly_rent=1500, vacancy_rate=0.05)
-]
-
-# Step 5: Define income projections
-income = IncomeProjections(
-    rental_units=units,
-    other_income={
-        "Laundry": 2400,
-        "Storage": 1800,
-        "Late Fees": 600
-    },
-    rent_growth_rate=0.03,
-    vacancy_rate=0.05
-)
-
-# Step 6: Define operating expenses
-expenses = OperatingExpenses(
-    real_estate_taxes=14000,
-    insurance=6000,
-    utilities={
-        "Water/Sewer": 3600,
-        "Common Electric": 1800
-    },
-    repairs_maintenance=8000,
-    property_management_pct=0.07,  # 7% of EGI
-    payroll=0,  # Self-managed
-    administrative=2000,
-    marketing=1500,
-    reserves=4800  # $600 per unit annually
-)
-
-# Step 7: Define planned capital expenditures
-capital_expenditures = [
-    CapitalExpenditure(
-        description="Roof Replacement",
-        amount=36000,
-        year=3,
-        depreciable=True
-    ),
-    CapitalExpenditure(
-        description="Exterior Paint",
-        amount=14000,
-        year=2,
-        depreciable=False
-    )
-]
-
-# Step 8: Define sale assumptions
-sale_assumptions = SaleAssumptions(
-    hold_period=7,  # Plan to sell after 7 years
-    cap_rate=0.065,  # Exit cap rate of 6.5%
-    selling_costs=0.04  # 4% for broker and closing costs
-)
-
-# Step 9: Create the pro forma
-proforma = RealEstateProForma(
-    property_info=property_info,
-    purchase_details=purchase_details,
-    financing=financing,
-    income_projections=income,
-    operating_expenses=expenses,
-    capital_expenditures=capital_expenditures,
-    sale_assumptions=sale_assumptions,
-    analysis_period=10,
-    tax_rate=0.32  # Investor's tax rate
-)
-
-# Step 10: Generate analysis and reports
-cash_flows = proforma.calculate_cash_flows()
-metrics = proforma.calculate_metrics()
-full_report = proforma.generate_report()
-
-# Step 11: Access and use the results
-print(f"Property: {proforma.property_info.property_name}")
-print(f"Initial Investment: ${proforma.purchase_details.total_acquisition_cost - proforma.financing.loan_amount:,.2f}")
-print(f"IRR: {metrics['irr']:.2%}")
-print(f"Cash-on-Cash (Year 1): {metrics['cash_on_cash'].get(1, 0):.2%}")
-print(f"Expected Sale Price (Year {sale_assumptions.hold_period}): ${cash_flows.loc[sale_assumptions.hold_period, 'sale_price']:,.2f}")
+class Proforma:
+    """Main class for CRE financial analysis"""
+    
+    def __init__(self, property_name: str = "Unnamed Property"):
+        self.id = str(uuid.uuid4())
+        self.property_name = property_name
+        self.created_date = date.today()
+        self.last_modified = date.today()
+        
+        # Core financial components
+        self.income = Income()
+        self.expenses = Expenses()
+        self.financing = Financing()
+        
+        # Additional data that will be expanded later
+        self.acquisition = {}
+        self.capital_expenditures = {}
+        self.sale_assumptions = {}
+        
+        # For storing source data references
+        self.data_sources = {}
+    
+    @property
+    def noi(self) -> float:
+        """Net Operating Income"""
+        return self.income.effective_gross_income - self.expenses.total_operating_expenses
+    
+    @property
+    def dscr(self) -> float:
+        """Debt Service Coverage Ratio"""
+        annual_debt_service = self.financing.annual_debt_service
+        if annual_debt_service == 0:
+            return float('inf')  # No debt service means infinite coverage
+        return self.noi / annual_debt_service
+    
+    @property
+    def cap_rate(self) -> float:
+        """Capitalization Rate based on acquisition cost"""
+        total_cost = sum(self.acquisition.values()) if self.acquisition else 0
+        if total_cost == 0:
+            return 0.0
+        return self.noi / total_cost
+    
+    def register_data_source(self, name: str, source_type: str, connection_info: dict) -> None:
+        """Register a data source that can be used to populate the proforma"""
+        self.data_sources[name] = {
+            "type": source_type,
+            "connection_info": connection_info,
+            "last_updated": date.today()
+        }
+    
+    def to_dict(self) -> dict:
+        """Convert proforma to dictionary for serialization"""
+        # Implementation will be expanded as needed
+        return {
+            "id": self.id,
+            "property_name": self.property_name,
+            "created_date": str(self.created_date),
+            "last_modified": str(self.last_modified),
+            "income": self.income.__dict__,
+            "expenses": {"operating_expenses": self.expenses.operating_expenses},
+            "financing": self.financing.__dict__,
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Proforma':
+        """Create a Proforma instance from dictionary data"""
+        proforma = cls(data.get("property_name", "Unnamed Property"))
+        
+        # Set basic properties
+        proforma.id = data.get("id", proforma.id)
+        
+        # Set financial components
+        income_data = data.get("income", {})
+        proforma.income = Income(
+            rental_income=income_data.get("rental_income", 0.0),
+            other_income=income_data.get("other_income", 0.0),
+            vacancy_loss=income_data.get("vacancy_loss", 0.0)
+        )
+        
+        expenses_data = data.get("expenses", {})
+        proforma.expenses = Expenses(
+            operating_expenses=expenses_data.get("operating_expenses", {})
+        )
+        
+        financing_data = data.get("financing", {})
+        proforma.financing = Financing(
+            loan_amount=financing_data.get("loan_amount", 0.0),
+            interest_rate=financing_data.get("interest_rate", 0.0),
+            term_years=financing_data.get("term_years", 30),
+            amortization_years=financing_data.get("amortization_years", 30)
+        )
+        
+        return proforma

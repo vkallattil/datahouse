@@ -5,7 +5,7 @@ from typing import List, Dict
 # Load the English language model
 nlp = spacy.load("en_core_web_lg")
 
-class Document:
+class SpacyDocument:
     def __init__(self, text: str):
         self.doc = nlp(text)
 

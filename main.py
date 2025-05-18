@@ -1,4 +1,4 @@
-from modules.core import run_assistant_cli
+from modules.cli.core import run_assistant_cli
 
 def main():
     run_assistant_cli()

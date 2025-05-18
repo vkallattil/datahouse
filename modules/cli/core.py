@@ -1,12 +1,11 @@
 from typing import Callable
 from modules.memory import JsonMemoryLog
-from modules.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
+from modules.cli.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
 import os
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit import prompt
+from prompt_toolkit import prompt, history as hs
 
 memory = JsonMemoryLog("logs/memory_log.json")
-history = FileHistory("logs/command_log.txt")
+history = hs.FileHistory("logs/command_log.txt")
 
 def handle_input(user_input: str) -> Response:
     """
