@@ -32,3 +32,6 @@ htmlcov/
 
 # Saved Data
 /saves/
+
+# MacOS
+**/.DS_Store
