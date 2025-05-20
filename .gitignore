@@ -30,8 +30,5 @@ htmlcov/
 # Cursor Context
 /onboarding.txt
 
-# Saved Data
-/saves/
-
 # MacOS
 **/.DS_Store
