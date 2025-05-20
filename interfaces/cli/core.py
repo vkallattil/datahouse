@@ -1,6 +1,6 @@
 from typing import Callable
-from modules.memory import JsonMemoryLog
-from modules.cli.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
+from modules.core.memory import JsonMemoryLog
+from interfaces.cli.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
 import os
 from prompt_toolkit import prompt, history as hs
 

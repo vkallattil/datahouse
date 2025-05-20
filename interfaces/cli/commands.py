@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Optional
 import json
 import webbrowser
-from modules.web import get_google_search_results
+from modules.core.web import get_google_search_results
 from abc import ABC, abstractmethod
 from prompt_toolkit import print_formatted_text as print
 
