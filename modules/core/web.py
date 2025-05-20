@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from typing import Dict, List, Optional
 from utilities.logger import logger
 import urllib.parse
-from utilities.logger import logger
 from utilities.config import CUSTOM_SEARCH_API_KEY, PROGRAMMABLE_SEARCH_ENGINE_ID
 
 def crawl_links(start_url, max_depth):
