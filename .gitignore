@@ -27,8 +27,5 @@ htmlcov/
 # Log Store
 /logs/
 
-# Cursor Context
-/onboarding.txt
-
 # MacOS
 **/.DS_Store

@@ -1,0 +1,64 @@
+Datahouse Codebase Onboarding Document
+
+Core Vision
+  A high-level backend factory system for rapid business module development across domains, with a focus on:
+    Robust LLM and agentic capabilities
+    Modular architecture for rapid development
+    Clean, maintainable codebase
+    Scalable infrastructure for any domain
+
+Core Module
+  Purpose: Provide technical orchestration and AI capabilities
+  Key Components:
+    Flexible LLM framework supporting:
+      SLMs (e.g., BERT)
+      LLMs (e.g., GPT series)
+      Local and cloud deployments
+    Configurable based on privacy/workflow needs
+    Agent runtime environment for:
+      User-created agentic flows
+      Built-in CLI/API flows
+
+Domain Modules
+  Modules containing domain-specific business logic
+  Current
+    Real Estate
+  Conceptual Future Structure
+    Finance
+      Real Estate
+      Private Equity
+      Banking
+      Insurance
+    Health
+    Legal
+    Education
+
+Utilities
+  Module Independence vs Code Sharing
+    Modules should be independent in terms of their domain logic and business rules. However, they can and should share common utilities and patterns. The key is to avoid tight coupling between modules' business logic
+  What Should Be Shared (via utilities):
+    Data structures and patterns
+    Common calculations (e.g., financial formulas)
+    File I/O operations
+    Logging and error handling
+    Data validation
+    Common algorithms
+    Configuration management
+  What Should Stay Module-Specific:
+    Domain-specific business rules
+    Module-specific data models
+    Module-specific calculations
+    Module-specific validation rules
+    Module-specific error handling
+
+Development Philosophy
+  Code Quality
+    Clean, readable code
+    Emphasis on consistency
+    Large-scale refactoring readiness
+  Design Patterns
+    Proactive discussions before implementing new design patterns
+    Emphasis on consistency
+
+Next Steps
+  Active focus on real estate module development
