@@ -1,4 +1,3 @@
-from loaders import load_excel, save_pandas_to_file
+from loaders import parse_excel
 
-spreadsheet = load_excel("data/realestate/rental_pro_forma.xlsx")
-save_pandas_to_file(spreadsheet, "saves/rental_pro_forma.txt")
+spreadsheet = parse_excel("data/realestate/rental_pro_forma.xlsx")

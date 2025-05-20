@@ -1,7 +1,0 @@
-DataHouse Technical Overview 5/15/25
-
-Vision
-Build an enterprise-grade agent system and intelligence platform capable of concurrently running the following operations:
-* Doing market research and reporting insights to the user.
-* Translating business problems into technical documentation and solution architecture.
-* Autonomous development agent sprints with human-in-the-loop.
