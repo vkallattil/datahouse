@@ -17,7 +17,7 @@ build/
 .idea/
 
 # Local development
-.env
+/.env
 *.log
 
 # Testing
