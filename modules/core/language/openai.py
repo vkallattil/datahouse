@@ -22,7 +22,7 @@ class OpenAIClient:
         
         Args:
             prompt: The input prompt to send to the model.
-            model: The model to use (default: "gpt-4").
+            model: The model to use (default: "gpt-4.1-nano").
             
         Returns:
             The generated text response.
