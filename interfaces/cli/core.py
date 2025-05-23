@@ -1,10 +1,8 @@
 from typing import Callable
-from modules.core.memory import JsonMemoryLog
 from interfaces.cli.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
 import os
 from prompt_toolkit import prompt, history as hs
 
-memory = JsonMemoryLog("logs/memory_log.json")
 history = hs.FileHistory("logs/command_log.txt")
 
 def handle_input(user_input: str) -> Response:
@@ -19,13 +17,11 @@ def handle_input(user_input: str) -> Response:
         args = parts[1] if len(parts) > 1 else ""
         response = registry.execute(command, args)
         if response is not None:
-            memory.save(user_input, response.to_string())
             
             return response
         return StringResponse(f"Unknown command: {command}")
     
     response = StringResponse("Processed: " + user_input)
-    memory.save(user_input, response.to_string())
     return response
 
 def handle_menu(menu_response: MenuResponse):
