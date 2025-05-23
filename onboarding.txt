@@ -1,37 +1,16 @@
 Datahouse Codebase Onboarding Document
 
-Core Vision
-  A high-level backend factory system for rapid business module development across domains, with a focus on:
-    Robust LLM and agentic capabilities
-    Modular architecture for rapid development
-    Clean, maintainable codebase
-    Scalable infrastructure for any domain
+Vision
 
-Core Module
-  Purpose: Provide technical orchestration and AI capabilities
-  Key Components:
-    Flexible LLM framework supporting:
-      SLMs (e.g., BERT)
-      LLMs (e.g., GPT series)
-      Local and cloud deployments
-    Configurable based on privacy/workflow needs
-    Agent runtime environment for:
-      User-created agentic flows
-      Built-in CLI/API flows
-
-Domain Modules
-  Modules containing domain-specific business logic
-  Current
-    Real Estate
-  Conceptual Future Structure
-    Finance
-      Real Estate
-      Private Equity
-      Banking
-      Insurance
-    Health
-    Legal
-    Education
+Build an enterprise-grade operating system for the tech company of the future, capable of:
+- Commercial and residential real estate development and investment analysis.
+    - Motivation: Build a CRE tech consultancy. Provide products and services to investors and developers to streamline their operations, use better data, and enable more creativity in their construction and development plans.  
+- Private equity and venture capital investment tracking and analysis.
+    - Motivation: Startup opportunity sourcing engine. Build a private equity intelligence dashboard that predicts what PEs and VCs want people to build before people start building it.
+- Autonomous agent-team software development.
+    - Motivation: An in-house code shop. Manage and track development progress across many interfaces on the go or sitting in office. 
+- Administrative work.
+    - Motivation: Real time, and personalized - priority tracking, calendar management, financial planning, automated job scheduling, email and message drafting, and so on.
 
 Utilities
   Module Independence vs Code Sharing
@@ -51,14 +30,9 @@ Utilities
     Module-specific validation rules
     Module-specific error handling
 
-Development Philosophy
-  Code Quality
-    Clean, readable code
-    Emphasis on consistency
-    Large-scale refactoring readiness
-  Design Patterns
-    Proactive discussions before implementing new design patterns
-    Emphasis on consistency
-
 Next Steps
-  Active focus on real estate module development
+  The first priority is the CRE tech consultancy.
+  The second priority is the agent-team of software developers (requires some money).
+  The third priority is the administrative work.
+  The last priority is the PE intelligence service.
+
