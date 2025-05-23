@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Optional
 import json
 import webbrowser
-from modules.core.web import get_google_search_results
+from modules.core.language.openai import openai_client, OpenAIClient
 from abc import ABC, abstractmethod
 from prompt_toolkit import print_formatted_text as print
 
@@ -78,26 +78,24 @@ def help_command(args: str) -> Response:
 def echo_command(args: str) -> Response:
     return StringResponse(args)
 
-def create_open_action(link):
-    return lambda: webbrowser.open(link)
-
-@registry.register("search")
-def search_command(args: str) -> Response:
-    results = get_google_search_results(args)
-    if results is None:
-        return StringResponse("Error: Failed to retrieve search results")
+@registry.register('ask')
+def ask_command(args: str) -> Response:
+    """
+    Generate a response using OpenAI's API.
+    Usage: /ask <your prompt>
+    Example: /ask Write a one-sentence bedtime story about a unicorn
+    """
+    if not args:
+        return StringResponse("Please provide a prompt. Usage: /ask <your prompt>")
     
-    options = []
-    for result in results:
-        options.append(
-            MenuOption(
-                label=result["link"], 
-                action=create_open_action(result["link"])
-            )
+    if not openai_client:
+        return StringResponse(
+            "Error: OpenAI client not initialized. "
+            "Please set OPENAI_API_KEY in your environment variables."
         )
     
-    return MenuResponse("Select a search result to open: ", options)
-
-@registry.register("crawl")
-def crawl_command(args: str) -> Response:
-    return StringResponse("TODO: Crawl Tool Implementation")
+    try:
+        response = openai_client.generate_response(args)
+        return StringResponse(response)
+    except Exception as e:
+        return StringResponse(f"Error: {str(e)}")
