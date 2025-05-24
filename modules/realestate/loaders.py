@@ -1,5 +1,5 @@
 from llama_cloud_services import LlamaExtract
-from utilities.config import LLAMA_CLOUD_API_KEY
+from utilities.config.env import LLAMA_CLOUD_API_KEY
 from modules.realestate.schemas import RentalProperty
 
 extractor = LlamaExtract(api_key=LLAMA_CLOUD_API_KEY)

@@ -1,6 +1,6 @@
 from typing import Optional
 from openai import OpenAI, OpenAIError
-from utilities.config import OPENAI_API_KEY
+from utilities.config.env import OPENAI_API_KEY
 
 class OpenAIClient:
     """A client for interacting with OpenAI's API."""
