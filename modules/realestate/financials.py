@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from modules.realestate.schemas import RentalProperty
+from modules.realestate.schemas import Property
 
 @dataclass
 class Income:
     """Container for all income-related items"""
-    property: RentalProperty
+    property: Property
 
     def get_monthly_gross_potential_rent(self) -> float:
         """Calculate a given year's gross potential rent based on units, base rent, and escalation rate"""
