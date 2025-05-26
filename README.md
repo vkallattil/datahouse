@@ -43,6 +43,11 @@ Build an enterprise-grade operating system for the tech company of the future, c
 python main.py
 ```
 
+### Documentation
+```bash
+pdoc3 datahouse --html --output-dir docs
+```
+
 ## 📂 Project Structure
 ```
 datahouse/

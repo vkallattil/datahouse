@@ -27,5 +27,8 @@ htmlcov/
 # Log Store
 /logs/
 
+# Documentation
+/docs/
+
 # MacOS
 **/.DS_Store

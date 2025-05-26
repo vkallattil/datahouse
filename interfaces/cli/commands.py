@@ -236,8 +236,8 @@ def echo_command(args: str) -> Response:
     return StringResponse(args)
 
 
-@registry.register('ask')
-def ask_command(args: str) -> Response:
+@registry.register('chat')
+def chat_command(args: str) -> Response:
     """Generate a response using OpenAI's language model.
     
     This command sends the provided prompt to OpenAI's API and returns
@@ -250,13 +250,13 @@ def ask_command(args: str) -> Response:
         A StringResponse with the generated text or an error message.
         
     Example:
-        /ask Write a haiku about artificial intelligence
+        /chat Write a haiku about artificial intelligence
     """
     if not args:
         return StringResponse(
             "Please provide a prompt.\n"
-            "Usage: /ask <your prompt>\n"
-            "Example: /ask Write a one-sentence bedtime story about a unicorn"
+            "Usage: /chat <your prompt>\n"
+            "Example: /chat Write a one-sentence bedtime story about a unicorn"
         )
     
     if not openai_client:
