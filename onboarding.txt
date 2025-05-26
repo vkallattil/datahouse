@@ -3,10 +3,6 @@ Datahouse Codebase Onboarding Document
 Vision
 
 Build an enterprise-grade operating system for the tech company of the future, capable of:
-- Commercial and residential real estate development and investment analysis.
-    - Motivation: Build a CRE tech consultancy. Provide products and services to investors and developers to streamline their operations, use better data, and enable more creativity in their construction and development plans.  
-- Private equity and venture capital investment tracking and analysis.
-    - Motivation: Startup opportunity sourcing engine. Build a private equity intelligence dashboard that predicts what PEs and VCs want people to build before people start building it.
 - Autonomous agent-team software development.
     - Motivation: An in-house code shop. Manage and track development progress across many interfaces on the go or sitting in office. 
 - Administrative work.
