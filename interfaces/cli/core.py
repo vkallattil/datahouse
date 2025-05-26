@@ -11,7 +11,7 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from utilities.language.openai import openai_client
+from utilities.language.clients import openai_client
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
@@ -35,6 +35,8 @@ def handle_input(user_input: str) -> Response:
         >>> handle_input("Hello, world!")
         <StringResponse with processed text>
     """
+    chat_context = ""
+    # Handle command inputs
     if not user_input:
         return StringResponse("")
         
