@@ -10,9 +10,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from prompt_toolkit import print_formatted_text as print
 
-# Third-party imports
-import webbrowser
-
 # Local application imports
 from utilities.language.openai import openai_client
 
@@ -181,7 +178,6 @@ def exit_command(args: str) -> Response:
     """
     raise CommandExit()
 
-
 @registry.register("clear")
 def clear_command(args: str) -> Response:
     """Clear the terminal screen.
@@ -194,31 +190,19 @@ def clear_command(args: str) -> Response:
     """
     raise CommandClear()
 
-
 @registry.register("help")
 def help_command(args: str) -> Response:
     """Display help information about available commands.
     
-    Args:
-        args: If provided, show detailed help for a specific command.
-        
     Returns:
         A StringResponse with command help information.
     """
-    if args:
-        # Show detailed help for a specific command
-        cmd = args.strip().lower()
-        if cmd in registry.commands:
-            doc = registry.commands[cmd].__doc__
-            return StringResponse(doc or f"No documentation available for /{cmd}")
-        return StringResponse(f"Unknown command: /{cmd}")
     
     # Show list of all commands
     commands = sorted(registry.commands.keys())
     help_text = "Available commands (type '/help <command>' for details):\n"
     help_text += "\n".join(f"  /{cmd}" for cmd in commands)
     return StringResponse(help_text)
-
 
 @registry.register("echo")
 def echo_command(args: str) -> Response:
@@ -234,39 +218,3 @@ def echo_command(args: str) -> Response:
         /echo Hello, world!
     """
     return StringResponse(args)
-
-
-@registry.register('chat')
-def chat_command(args: str) -> Response:
-    """Generate a response using OpenAI's language model.
-    
-    This command sends the provided prompt to OpenAI's API and returns
-    the generated response. It requires a valid OPENAI_API_KEY to be set.
-    
-    Args:
-        args: The prompt to send to the language model.
-        
-    Returns:
-        A StringResponse with the generated text or an error message.
-        
-    Example:
-        /chat Write a haiku about artificial intelligence
-    """
-    if not args:
-        return StringResponse(
-            "Please provide a prompt.\n"
-            "Usage: /chat <your prompt>\n"
-            "Example: /chat Write a one-sentence bedtime story about a unicorn"
-        )
-    
-    if not openai_client:
-        return StringResponse(
-            "Error: OpenAI client not initialized.\n"
-            "Please set the OPENAI_API_KEY environment variable with a valid API key."
-        )
-    
-    try:
-        response = openai_client.generate_response(args)
-        return StringResponse(response.strip())
-    except Exception as e:
-        return StringResponse(f"Error: {str(e)}")

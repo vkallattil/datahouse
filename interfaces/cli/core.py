@@ -11,6 +11,7 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
+from utilities.language.openai import openai_client
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
@@ -49,8 +50,12 @@ def handle_input(user_input: str) -> Response:
             
         return StringResponse(f"Unknown command: {command}")
     
-    # Process as regular input
-    return StringResponse("Processed: " + user_input)
+    # Process non-command input with LLM
+    try:
+        response = openai_client.generate_response(user_input)
+        return StringResponse(response)
+    except Exception as e:
+        return StringResponse(f"Error generating response: {str(e)}")
 
 def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
     """Display a menu and handle user selection.
