@@ -11,7 +11,7 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from modules.language.clients import openai_client
+from tools.language.clients import openai_client
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
@@ -35,7 +35,7 @@ def handle_input(user_input: str) -> Response:
         >>> handle_input("Hello, world!")
         <StringResponse with processed text>
     """
-    chat_context = ""
+    
     # Handle command inputs
     if not user_input:
         return StringResponse("")
@@ -145,40 +145,33 @@ def run_assistant_cli() -> None:
     """
     display_initial_prompt()
     
-    try:
-        while True:
-            try:
-                # Get user input with history support
-                user_input = prompt("> ", history=history).strip()
+    while True:
+        try:
+            # Get user input with history support
+            user_input = prompt("> ", history=history).strip()
+            
+            # Skip empty inputs
+            if not user_input:
+                continue
                 
-                # Skip empty inputs
-                if not user_input:
-                    continue
-                    
-                # Process the input
-                response = handle_input(user_input)
-                
-                # Handle different response types
-                if hasattr(response, "options") and hasattr(response, "prompt"):
-                    handle_menu(response)
-                else:
-                    print(response.to_string())
+            # Process the input
+            response = handle_input(user_input)
 
-            except CommandExit:
-                print("Exiting Datahouse CLI. Goodbye!")
-                break
-                
-            except CommandClear:
-                # Clear screen and redisplay prompt
-                os.system('cls' if os.name == 'nt' else 'clear')
-                display_initial_prompt()
-                
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                print("Type '/help' for assistance or '/exit' to quit.")
-                
-    except KeyboardInterrupt:
-        print("Exiting Datahouse CLI. Goodbye!")
-    except Exception as e:
-        print(f"A critical error occurred: {e}")
-        print("Please report this issue to the development team.")
+            # Handle different response types
+            if hasattr(response, "options") and hasattr(response, "prompt"):
+                handle_menu(response)
+            else:
+                print(response.to_string())
+
+        except CommandExit:
+            print("Exiting Datahouse CLI. Goodbye!")
+            break
+            
+        except CommandClear:
+            # Clear screen and redisplay prompt
+            os.system('cls' if os.name == 'nt' else 'clear')
+            display_initial_prompt()
+            
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            print("Type '/help' for assistance or '/exit' to quit.")

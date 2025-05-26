@@ -10,9 +10,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from prompt_toolkit import print_formatted_text as print
 
-# Local application imports
-from utilities.language.clients import openai_client
-
 class Response(ABC):
     """Abstract base class for all command responses.
     
