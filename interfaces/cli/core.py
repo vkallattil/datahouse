@@ -114,11 +114,11 @@ def display_initial_prompt() -> None:
     This function is called when the CLI starts and after clearing the screen.
     It provides users with basic information about how to interact with the application.
     """
-    print("\n" + "=" * 50)
+    print("=" * 50)
     print("🚀 Datahouse CLI - Enterprise Operating System")
     print("=" * 50)
     print("\nType '/help' to see available commands.")
-    print("Type '/exit' to quit the application.\n")
+    print("Type '/exit' to quit the application.")
 
 def run_assistant_cli() -> None:
     """Start and run the CLI application.
@@ -142,7 +142,7 @@ def run_assistant_cli() -> None:
         while True:
             try:
                 # Get user input with history support
-                user_input = prompt("\n> ", history=history).strip()
+                user_input = prompt("> ", history=history).strip()
                 
                 # Skip empty inputs
                 if not user_input:
@@ -155,10 +155,10 @@ def run_assistant_cli() -> None:
                 if hasattr(response, "options") and hasattr(response, "prompt"):
                     handle_menu(response)
                 else:
-                    print("\n" + response.to_string())
+                    print(response.to_string())
 
             except CommandExit:
-                print("\n👋 Exiting Datahouse CLI. Goodbye!")
+                print("👋 Exiting Datahouse CLI. Goodbye!")
                 break
                 
             except CommandClear:
@@ -167,11 +167,11 @@ def run_assistant_cli() -> None:
                 display_initial_prompt()
                 
             except Exception as e:
-                print(f"\n❌ An error occurred: {e}")
+                print(f"❌ An error occurred: {e}")
                 print("Type '/help' for assistance or '/exit' to quit.")
                 
     except KeyboardInterrupt:
-        print("\n\n👋 Exiting Datahouse CLI. Goodbye!")
+        print("👋 Exiting Datahouse CLI. Goodbye!")
     except Exception as e:
-        print(f"\n💥 A critical error occurred: {e}")
+        print(f"💥 A critical error occurred: {e}")
         print("Please report this issue to the development team.")

@@ -14,7 +14,7 @@ from prompt_toolkit import print_formatted_text as print
 import webbrowser
 
 # Local application imports
-from modules.language.openai import openai_client
+from utilities.language.openai import openai_client
 
 class Response(ABC):
     """Abstract base class for all command responses.
