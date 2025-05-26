@@ -16,7 +16,7 @@ from tools.language.clients import openai_client
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
 
-def handle_input(user_input: str) -> Response:
+def handle_input(user_input: str, chat_context: str) -> Response:
     """Process user input and return an appropriate response.
     
     This function handles both command inputs (starting with '/') and regular text inputs.
@@ -54,7 +54,7 @@ def handle_input(user_input: str) -> Response:
     
     # Process non-command input with LLM
     try:
-        response = openai_client.generate_response(user_input)
+        response = openai_client.generate_response(chat_context)
         return StringResponse(response)
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")
@@ -144,6 +144,8 @@ def run_assistant_cli() -> None:
         >>> run_assistant_cli()
     """
     display_initial_prompt()
+
+    chat_context = ""
     
     while True:
         try:
@@ -153,9 +155,13 @@ def run_assistant_cli() -> None:
             # Skip empty inputs
             if not user_input:
                 continue
+
+            chat_context += f"User: {user_input}\n"
                 
             # Process the input
-            response = handle_input(user_input)
+            response = handle_input(user_input, chat_context)
+
+            chat_context += f"Assistant: {response.to_string()}\n"
 
             # Handle different response types
             if hasattr(response, "options") and hasattr(response, "prompt"):
@@ -171,6 +177,7 @@ def run_assistant_cli() -> None:
             # Clear screen and redisplay prompt
             os.system('cls' if os.name == 'nt' else 'clear')
             display_initial_prompt()
+            chat_context = ""
             
         except Exception as e:
             print(f"An error occurred: {e}")
