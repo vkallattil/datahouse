@@ -266,9 +266,7 @@ def chat_command(args: str) -> Response:
         )
     
     try:
-        # Show a processing message for longer-running requests
-        print("🤔 Thinking...", end="\r")
         response = openai_client.generate_response(args)
-        return StringResponse("💡 " + response.strip())
+        return StringResponse(response.strip())
     except Exception as e:
-        return StringResponse(f"❌ Error: {str(e)}")
+        return StringResponse(f"Error: {str(e)}")

@@ -77,14 +77,14 @@ def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
         return None
         
     # Display menu prompt and options
-    print("\n" + menu_response.prompt)
+    print(menu_response.prompt)
     print("-" * 40)
     
     for i, option in enumerate(menu_response.options, 1):
         print(f"{i}. {option.label}")
     
     # Get user selection
-    selected_option = input("\nPick an option (or q to cancel): ").strip()
+    selected_option = input("Pick an option (or q to cancel): ").strip()
     
     if selected_option.lower() == 'q':
         print("Operation cancelled.")
@@ -92,20 +92,20 @@ def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
     
     # Validate input
     if not selected_option.isdigit():
-        print("❌ Please enter a valid number.")
+        print("Please enter a valid number.")
         return None
     
     selected_index = int(selected_option) - 1
     
     if not (0 <= selected_index < len(menu_response.options)):
-        print(f"❌ Please enter a number between 1 and {len(menu_response.options)}")
+        print(f"Please enter a number between 1 and {len(menu_response.options)}")
         return None
     
     # Execute the selected action
     try:
         return menu_response.options[selected_index].action()
     except Exception as e:
-        print(f"❌ Error executing action: {e}")
+        print(f"Error executing action: {e}")
         return None
 
 def display_initial_prompt() -> None:
@@ -115,9 +115,9 @@ def display_initial_prompt() -> None:
     It provides users with basic information about how to interact with the application.
     """
     print("=" * 50)
-    print("🚀 Datahouse CLI - Enterprise Operating System")
+    print("Datahouse CLI - Enterprise Operating System")
     print("=" * 50)
-    print("\nType '/help' to see available commands.")
+    print("Type '/help' to see available commands.")
     print("Type '/exit' to quit the application.")
 
 def run_assistant_cli() -> None:
@@ -158,7 +158,7 @@ def run_assistant_cli() -> None:
                     print(response.to_string())
 
             except CommandExit:
-                print("👋 Exiting Datahouse CLI. Goodbye!")
+                print("Exiting Datahouse CLI. Goodbye!")
                 break
                 
             except CommandClear:
@@ -167,11 +167,11 @@ def run_assistant_cli() -> None:
                 display_initial_prompt()
                 
             except Exception as e:
-                print(f"❌ An error occurred: {e}")
+                print(f"An error occurred: {e}")
                 print("Type '/help' for assistance or '/exit' to quit.")
                 
     except KeyboardInterrupt:
-        print("👋 Exiting Datahouse CLI. Goodbye!")
+        print("Exiting Datahouse CLI. Goodbye!")
     except Exception as e:
-        print(f"💥 A critical error occurred: {e}")
+        print(f"A critical error occurred: {e}")
         print("Please report this issue to the development team.")
