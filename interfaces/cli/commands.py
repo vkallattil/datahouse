@@ -5,10 +5,11 @@ execution, and response handling. It provides a flexible way to extend the
 CLI with new commands and menu-based interactions.
 """
 
-from typing import Callable, Dict, List, Optional, Any
+from typing import Callable, Dict, List, Optional, Any, cast
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from prompt_toolkit import print_formatted_text as print
+from tools.web.search import google_search, format_search_results, GoogleSearchError
 
 class Response(ABC):
     """Abstract base class for all command responses.
@@ -194,10 +195,8 @@ def help_command(args: str) -> Response:
     Returns:
         A StringResponse with command help information.
     """
-    
-    # Show list of all commands
     commands = sorted(registry.commands.keys())
-    help_text = "Available commands (type '/help <command>' for details):\n"
+    help_text = "Available commands:\n"
     help_text += "\n".join(f"  /{cmd}" for cmd in commands)
     return StringResponse(help_text)
 
@@ -215,3 +214,61 @@ def echo_command(args: str) -> Response:
         /echo Hello, world!
     """
     return StringResponse(args)
+
+@registry.register("search")
+def search_command(args: str) -> Response:
+    """
+    Perform a web search using Google Custom Search.
+    
+    Args:
+        args: The search query string.
+        
+    Returns:
+        A StringResponse with search results or an error message.
+        
+    Example:
+        /search python data analysis
+    """
+    if not args.strip():
+        return StringResponse("Please provide a search query. Example: /search python data analysis")
+    
+    try:
+        results = google_search(args)
+        if not results:
+            return StringResponse("No results found for your search.")
+            
+        # Format the first 10 results as a menu
+        menu_options = []
+        for i, result in enumerate(results[:10], 1):
+            # Truncate the title for the menu display
+            title = result.get('title', 'No title')
+            if len(title) > 60:
+                title = title[:57] + '...'
+                
+            menu_options.append(MenuOption(
+                label=f"{i}. {title}",
+                action=lambda r=result: StringResponse(
+                    f"Title: {r.get('title', 'No title')}\n"
+                    f"URL: {r.get('link', 'No URL')}\n"
+                    f"\n{r.get('snippet', 'No description')}\n"
+                )
+            ))
+        
+        # Add a back option to the menu
+        menu_options.append(
+            MenuOption(
+                label="Back to search results",
+                action=lambda: MenuResponse(
+                    prompt=f"Search results for: {args}",
+                    options=menu_options
+                )
+            )
+        )
+        
+        return MenuResponse(
+            prompt=f"Search results for: {args}",
+            options=menu_options
+        )
+        
+    except Exception as e:
+        return StringResponse(f"Error performing search: {str(e)}")
