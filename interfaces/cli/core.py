@@ -1,75 +1,177 @@
-from typing import Callable
-from interfaces.cli.commands import registry, CommandExit, CommandClear, MenuResponse, StringResponse, Response
-import os
-from prompt_toolkit import prompt, history as hs
+"""Core functionality for the Command Line Interface (CLI) of the Datahouse application.
 
+This module provides the main loop and input handling for the CLI, including command
+processing and menu navigation.
+"""
+
+import os
+from typing import Optional, Any
+from prompt_toolkit import prompt, history as hs
+from interfaces.cli.commands import (
+    registry, CommandExit, CommandClear, 
+    MenuResponse, StringResponse, Response
+)
+
+# Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
 
 def handle_input(user_input: str) -> Response:
-    """
-    Handle user input and save it to memory.
-    Supports commands starting with '/' and regular input.
-    """
+    """Process user input and return an appropriate response.
     
+    This function handles both command inputs (starting with '/') and regular text inputs.
+    Commands are executed through the command registry, while regular text is processed
+    as a general input.
+    
+    Args:
+        user_input: The raw input string from the user.
+        
+    Returns:
+        A Response object containing the result of processing the input.
+        
+    Example:
+        >>> handle_input("/help")
+        <StringResponse with help text>
+        >>> handle_input("Hello, world!")
+        <StringResponse with processed text>
+    """
+    if not user_input:
+        return StringResponse("")
+        
     if user_input.startswith('/'):
         parts = user_input[1:].split(maxsplit=1)
         command = parts[0].lower()
         args = parts[1] if len(parts) > 1 else ""
+        
+        # Execute command through registry
         response = registry.execute(command, args)
         if response is not None:
-            
             return response
+            
         return StringResponse(f"Unknown command: {command}")
     
-    response = StringResponse("Processed: " + user_input)
-    return response
+    # Process as regular input
+    return StringResponse("Processed: " + user_input)
 
-def handle_menu(menu_response: MenuResponse):
-    print(menu_response.prompt)
-
-    for i, option in enumerate(menu_response.options):
-        print(f"{i+1}. {option.label}")
-
-    selected_option = input("Pick an option (or q to cancel): ")
-
-    if selected_option == "q":
+def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
+    """Display a menu and handle user selection.
+    
+    This function presents a menu to the user with the provided options and
+    executes the corresponding action when a valid selection is made.
+    
+    Args:
+        menu_response: A MenuResponse object containing the menu prompt and options.
+        
+    Returns:
+        The result of the selected menu action, or None if no valid selection was made.
+        
+    Example:
+        >>> options = [
+        ...     MenuOption("Option 1", lambda: print("Selected 1")),
+        ...     MenuOption("Option 2", lambda: print("Selected 2"))
+        ... ]
+        >>> menu = MenuResponse("Choose an option:", options)
+        >>> handle_menu(menu)
+    """
+    if not menu_response.options:
+        print("No options available.")
+        return None
+        
+    # Display menu prompt and options
+    print("\n" + menu_response.prompt)
+    print("-" * 40)
+    
+    for i, option in enumerate(menu_response.options, 1):
+        print(f"{i}. {option.label}")
+    
+    # Get user selection
+    selected_option = input("\nPick an option (or q to cancel): ").strip()
+    
+    if selected_option.lower() == 'q':
+        print("Operation cancelled.")
         return None
     
+    # Validate input
     if not selected_option.isdigit():
-        print("Invalid option selected")
+        print("❌ Please enter a valid number.")
         return None
     
     selected_index = int(selected_option) - 1
     
-    if selected_index < 0 or selected_index >= len(menu_response.options):
-        print("Invalid option selected")
+    if not (0 <= selected_index < len(menu_response.options)):
+        print(f"❌ Please enter a number between 1 and {len(menu_response.options)}")
+        return None
+    
+    # Execute the selected action
+    try:
+        return menu_response.options[selected_index].action()
+    except Exception as e:
+        print(f"❌ Error executing action: {e}")
         return None
 
-    menu_response.options[selected_index].action()
-
-def display_initial_prompt():
-    print("KTI Assistant (Phase 1 CLI):")
-    print("Type '/help' for a list of commands.")
-
-def run_assistant_cli():
-    """
-    Run the assistant CLI.
-    """
+def display_initial_prompt() -> None:
+    """Display the initial welcome message and help instructions.
     
+    This function is called when the CLI starts and after clearing the screen.
+    It provides users with basic information about how to interact with the application.
+    """
+    print("\n" + "=" * 50)
+    print("🚀 Datahouse CLI - Enterprise Operating System")
+    print("=" * 50)
+    print("\nType '/help' to see available commands.")
+    print("Type '/exit' to quit the application.\n")
+
+def run_assistant_cli() -> None:
+    """Start and run the CLI application.
+    
+    This is the main entry point for the CLI. It initializes the interface,
+    handles user input in a loop, and processes commands until the user exits.
+    
+    The function handles various exceptions and provides appropriate feedback
+    to the user. It also manages the command history and screen clearing.
+    
+    Raises:
+        KeyboardInterrupt: If the user presses Ctrl+C to exit.
+        
+    Example:
+        To start the CLI, simply call:
+        >>> run_assistant_cli()
+    """
     display_initial_prompt()
     
-    while True:
-        try:
-            user_input = prompt(">> ", history=history)
-            response = handle_input(user_input)
+    try:
+        while True:
+            try:
+                # Get user input with history support
+                user_input = prompt("\n> ", history=history).strip()
+                
+                # Skip empty inputs
+                if not user_input:
+                    continue
+                    
+                # Process the input
+                response = handle_input(user_input)
+                
+                # Handle different response types
+                if hasattr(response, "options") and hasattr(response, "prompt"):
+                    handle_menu(response)
+                else:
+                    print("\n" + response.to_string())
 
-            if hasattr(response, "options") and hasattr(response, "prompt"):
-                handle_menu(response)
-            else:
-                print(response.to_string())
-
-        except CommandExit:
-            break
-        except CommandClear:
-            os.system('cls' if os.name == 'nt' else 'clear')
-            display_initial_prompt()
+            except CommandExit:
+                print("\n👋 Exiting Datahouse CLI. Goodbye!")
+                break
+                
+            except CommandClear:
+                # Clear screen and redisplay prompt
+                os.system('cls' if os.name == 'nt' else 'clear')
+                display_initial_prompt()
+                
+            except Exception as e:
+                print(f"\n❌ An error occurred: {e}")
+                print("Type '/help' for assistance or '/exit' to quit.")
+                
+    except KeyboardInterrupt:
+        print("\n\n👋 Exiting Datahouse CLI. Goodbye!")
+    except Exception as e:
+        print(f"\n💥 A critical error occurred: {e}")
+        print("Please report this issue to the development team.")
