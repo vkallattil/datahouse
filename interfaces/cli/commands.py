@@ -8,8 +8,9 @@ CLI with new commands and menu-based interactions.
 from typing import Callable, Dict, List, Optional, Any, cast
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import webbrowser
 from prompt_toolkit import print_formatted_text as print
-from tools.web.search import google_search, format_search_results, GoogleSearchError
+from tools.web.search import google_search, GoogleSearchError
 
 class Response(ABC):
     """Abstract base class for all command responses.
@@ -246,12 +247,8 @@ def search_command(args: str) -> Response:
                 title = title[:57] + '...'
                 
             menu_options.append(MenuOption(
-                label=f"{i}. {title}",
-                action=lambda r=result: StringResponse(
-                    f"Title: {r.get('title', 'No title')}\n"
-                    f"URL: {r.get('link', 'No URL')}\n"
-                    f"\n{r.get('snippet', 'No description')}\n"
-                )
+                label=title,
+                action=lambda r=result: webbrowser.open(r.get('link', ''))
             ))
         
         # Add a back option to the menu

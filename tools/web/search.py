@@ -63,28 +63,3 @@ def google_search(query: str, num_results: int = 10) -> List[SearchResult]:
         raise GoogleSearchError(f"Failed to perform search: {str(e)}")
     except (json.JSONDecodeError, KeyError) as e:
         raise GoogleSearchError(f"Invalid response from Google Search API: {str(e)}")
-
-def format_search_results(results: List[SearchResult]) -> str:
-    """
-    Format search results as a string for display.
-    
-    Args:
-        results: List of search results from google_search()
-        
-    Returns:
-        Formatted string with search results
-    """
-    if not results:
-        return "No results found."
-        
-    formatted = []
-    for i, item in enumerate(results, 1):
-        domain = urlparse(item.get('link', '')).netloc
-        formatted.append(
-            f"{i}. {item.get('title', 'No title')}\n"
-            f"   {item.get('link', '')}\n"
-            f"   {item.get('snippet', 'No description')}\n"
-            f"   {domain}\n"
-        )
-    
-    return "\n".join(formatted)
