@@ -17,12 +17,11 @@ class OpenAIClient:
         
         self.client = OpenAI(api_key=self.api_key)
     
-    def generate_response(self, prompt: str, model: str = "gpt-4.1-nano") -> str:
+    def generate_response(self, prompt: str) -> str:
         """Generate a text response using the OpenAI API.
         
         Args:
             prompt: The input prompt to send to the model.
-            model: The model to use (default: "gpt-4.1-nano").
             
         Returns:
             The generated text response.
@@ -32,7 +31,7 @@ class OpenAIClient:
         """
         try:
             response = self.client.chat.completions.create(
-                model=model,
+                model="gpt-4.1-nano",
                 messages=[{"role": "user", "content": prompt}]
             )
             return response.choices[0].message.content
