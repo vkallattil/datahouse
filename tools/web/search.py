@@ -6,7 +6,7 @@ from pathlib import Path
 import requests
 from urllib.parse import urlparse
 
-from config.env import CUSTOM_SEARCH_API_KEY, PROGRAMMABLE_SEARCH_ENGINE_ID
+from utilities.env import CUSTOM_SEARCH_API_KEY, PROGRAMMABLE_SEARCH_ENGINE_ID
 
 class SearchResult(TypedDict):
     """Typed dictionary for search result items."""

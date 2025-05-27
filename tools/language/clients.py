@@ -1,6 +1,6 @@
 from typing import Optional
 from openai import OpenAI, OpenAIError
-from config.env import OPENAI_API_KEY
+from utilities.env import OPENAI_API_KEY
 
 class OpenAIClient:
     """A client for interacting with OpenAI's API."""
@@ -9,7 +9,7 @@ class OpenAIClient:
         """Initialize the OpenAI client.
         
         Args:
-            api_key: Optional API key. If not provided, will use OPENAI_API_KEY from config.
+            api_key: Optional API key. If not provided, will use OPENAI_API_KEY from utilities.
         """
         self.api_key = api_key or OPENAI_API_KEY
         if not self.api_key:
