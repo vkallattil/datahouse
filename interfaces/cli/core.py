@@ -117,7 +117,7 @@ def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
 
 def display_initial_prompt() -> None:
     """Display the initial welcome message and help instructions.
-    
+
     This function is called when the CLI starts and after clearing the screen.
     It provides users with basic information about how to interact with the application.
     """
@@ -128,16 +128,16 @@ def display_initial_prompt() -> None:
 
 def run_assistant_cli() -> None:
     """Start and run the CLI application.
-    
+
     This is the main entry point for the CLI. It initializes the interface,
     handles user input in a loop, and processes commands until the user exits.
-    
+
     The function handles various exceptions and provides appropriate feedback
     to the user. It also manages the command history and screen clearing.
-    
+
     Raises:
         KeyboardInterrupt: If the user presses Ctrl+C to exit.
-        
+
     Example:
         To start the CLI, simply call:
         >>> run_assistant_cli()
@@ -145,18 +145,18 @@ def run_assistant_cli() -> None:
     display_initial_prompt()
 
     chat_context = ""
-    
+
     while True:
         try:
             # Get user input with history support
             user_input = prompt(">> ", history=history).strip()
-            
+
             # Skip empty inputs
             if not user_input:
                 continue
 
             chat_context += f"User: {user_input}\n"
-                
+
             # Process the input
             response = handle_input(user_input, chat_context)
 
