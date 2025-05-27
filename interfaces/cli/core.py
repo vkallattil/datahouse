@@ -122,10 +122,9 @@ def display_initial_prompt() -> None:
     It provides users with basic information about how to interact with the application.
     """
     print("=" * 50)
-    print("Datahouse CLI - Enterprise Operating System")
-    print("=" * 50)
     print("Type '/help' to see available commands.")
     print("Type '/exit' to quit the application.")
+    print("=" * 50 + "\n")
 
 def run_assistant_cli() -> None:
     """Start and run the CLI application.
@@ -150,7 +149,7 @@ def run_assistant_cli() -> None:
     while True:
         try:
             # Get user input with history support
-            user_input = prompt("> ", history=history).strip()
+            user_input = prompt(">> ", history=history).strip()
             
             # Skip empty inputs
             if not user_input:
