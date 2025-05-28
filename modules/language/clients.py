@@ -16,7 +16,20 @@ class OpenAIClient:
             raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY in environment variables.")
         
         self.client = OpenAI(api_key=OPENAI_API_KEY)
-        self.system_prompt = system_prompt
+        self.messages = [
+          {
+            "role": "developer",
+            "content": system_prompt
+          }
+        ]
+
+    def clear_messages(self):
+        self.messages = [
+          {
+            "role": "developer",
+            "content": self.system_prompt
+          }
+        ]
     
     def generate_response(self, prompt: str) -> str:
         """Generate a text response using the OpenAI API.
@@ -31,20 +44,22 @@ class OpenAIClient:
             OpenAIError: If there's an error with the API call.
         """
         try:
+            self.messages.append({
+              "role": "user",
+              "content": prompt
+            })
+
             response = self.client.chat.completions.create(
               model="gpt-4.1-nano",
-              messages=[
-                {
-                  "role": "developer",
-                  "content": self.system_prompt
-                },
-                {
-                  "role": "user", 
-                  "content": prompt
-                }
-              ]
+              messages=self.messages
             )
 
+            self.messages.append({
+              "role": "assistant",
+              "content": response.choices[0].message.content
+            })
+
             return response.choices[0].message.content
+
         except OpenAIError as e:
             raise OpenAIError(f"Error generating response: {str(e)}")
