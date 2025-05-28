@@ -1,9 +1,19 @@
-from typing import Optional
+from typing import Optional, ClassVar, Any
 from openai import OpenAI, OpenAIError
 from utilities.env import OPENAI_API_KEY
 
 class OpenAIClient:
-    """A client for interacting with OpenAI's API."""
+    """A client for interacting with OpenAI's API.
+    
+    This class implements the singleton pattern to ensure only one instance exists.
+    """
+    _instance: ClassVar[Optional['OpenAIClient']] = None
+    _initialized: ClassVar[bool] = False
+    
+    def __new__(cls, api_key: Optional[str] = None) -> 'OpenAIClient':
+        if cls._instance is None:
+            cls._instance = super(OpenAIClient, cls).__new__(cls)
+        return cls._instance
     
     def __init__(self, api_key: Optional[str] = None):
         """Initialize the OpenAI client.
@@ -11,11 +21,13 @@ class OpenAIClient:
         Args:
             api_key: Optional API key. If not provided, will use OPENAI_API_KEY from utilities.
         """
-        self.api_key = api_key or OPENAI_API_KEY
-        if not self.api_key:
-            raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY in environment variables.")
-        
-        self.client = OpenAI(api_key=self.api_key)
+        if not self._initialized:
+            self.api_key = api_key or OPENAI_API_KEY
+            if not self.api_key:
+                raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY in environment variables.")
+            
+            self.client = OpenAI(api_key=self.api_key)
+            self._initialized = True
     
     def generate_response(self, prompt: str) -> str:
         """Generate a text response using the OpenAI API.
