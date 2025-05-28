@@ -11,12 +11,14 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from modules.language.clients import openai_client
+from modules.language.clients import OpenAIClient
+from interfaces.agents.core import Message, AgentFactory
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
+cli_agent = AgentFactory.create("cli")
 
-def handle_input(user_input: str, chat_context: str) -> Response:
+def handle_input(user_input: str) -> Response:
     """Process user input and return an appropriate response.
     
     This function handles both command inputs (starting with '/') and regular text inputs.
@@ -52,9 +54,9 @@ def handle_input(user_input: str, chat_context: str) -> Response:
             
         return StringResponse(f"Unknown command: {command}")
     
-    # Process non-command input with LLM
+    # Process non-command input with CLI Agent
     try:
-        response = openai_client.generate_response(chat_context)
+        response = cli_agent.process(Message(user_input))
         return StringResponse(response)
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")
@@ -144,8 +146,6 @@ def run_assistant_cli() -> None:
     """
     display_initial_prompt()
 
-    chat_context = ""
-
     while True:
         try:
             # Get user input with history support
@@ -155,12 +155,8 @@ def run_assistant_cli() -> None:
             if not user_input:
                 continue
 
-            chat_context += f"User: {user_input}\n"
-
             # Process the input
-            response = handle_input(user_input, chat_context)
-
-            chat_context += f"Assistant: {response.to_string()}\n"
+            response = handle_input(user_input)
 
             # Handle different response types
             if hasattr(response, "options") and hasattr(response, "prompt"):
@@ -175,8 +171,8 @@ def run_assistant_cli() -> None:
         except CommandClear:
             # Clear screen and redisplay prompt
             os.system('cls' if os.name == 'nt' else 'clear')
+            cli_agent.clear_messages()
             display_initial_prompt()
-            chat_context = ""
             
         except Exception as e:
             print(f"An error occurred: {e}")
