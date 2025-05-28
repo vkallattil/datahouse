@@ -1,28 +1,24 @@
+from interfaces.agents.entities import Agent, Message
 from typing import Optional, Any
 from openai import OpenAI, OpenAIError
 from utilities.env import OPENAI_API_KEY
 
-class OpenAIClient:
-    """A client for interacting with OpenAI's API."""
-    
-    def __init__(self, system_prompt: Optional[str] = None):
-        """Initialize the OpenAI client.
-        
-        Args:
-            api_key: Optional API key. If not provided, will use OPENAI_API_KEY from utilities.
-        """
+class ChatAgent(Agent[str, str]):
+    def __init__(self):
+        super().__init__()
 
         if not OPENAI_API_KEY:
             raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY in environment variables.")
         
         self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.system_prompt = system_prompt
         self.messages = [
           {
             "role": "developer",
             "content": system_prompt
           }
         ]
-
+    
     def clear_messages(self):
         self.messages = [
           {
@@ -31,11 +27,11 @@ class OpenAIClient:
           }
         ]
     
-    def generate_response(self, prompt: str) -> str:
+    def process(self, message: Message[str]) -> str:
         """Generate a text response using the OpenAI API.
         
         Args:
-            prompt: The input prompt to send to the model.
+            message: The input prompt to send to the model.
             
         Returns:
             The generated text response.
@@ -46,7 +42,7 @@ class OpenAIClient:
         try:
             self.messages.append({
               "role": "user",
-              "content": prompt
+              "content": message.content
             })
 
             response = self.client.chat.completions.create(

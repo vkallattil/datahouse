@@ -22,29 +22,12 @@ class Tool(ABC, Generic[InputT, OutputT]):
 
 class Agent(ABC, Generic[InputT, OutputT]):
     """Base class for all agents."""
-
-    def __init__(self):
-        self.tools: Dict[str, Tool] = {}
         
     @abstractmethod
     async def process(self, message: Message[InputT]) -> OutputT:
         """Process an incoming message and return a response."""
         pass
     
-    def register_tool(self, name: str, tool: Tool) -> None:
-        """Register a tool with this agent."""
-        self.tools[name] = tool
-
-    def list_tools(self) -> List[str]:
-        """Return a list of all tools registered with this agent."""
-        return list(self.tools.keys())
-    
-    async def call_tool(self, name: str, input: Any) -> Any:
-        """Call a tool by name with the given input."""
-        if name not in self.tools:
-            raise ValueError(f"Tool '{name}' not found")
-        return await self.tools[name](input)
-
 class AgentFactory:
     """Simple factory for creating agent instances."""
     _registry: Dict[str, Type[Agent]] = {}

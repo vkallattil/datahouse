@@ -11,7 +11,6 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from modules.language.clients import OpenAIClient
 from interfaces.agents.core import Message, AgentFactory
 
 # Initialize command history with file-based persistence
