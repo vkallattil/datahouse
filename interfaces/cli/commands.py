@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import webbrowser
 from prompt_toolkit import print_formatted_text as print
-from modules.web.search import google_search, GoogleSearchError
+from modules.search import google_search, GoogleSearchError
 
 class Response(ABC):
     """Abstract base class for all command responses.
