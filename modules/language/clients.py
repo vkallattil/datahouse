@@ -1,33 +1,22 @@
-from typing import Optional, ClassVar, Any
+from typing import Optional, Any
 from openai import OpenAI, OpenAIError
 from utilities.env import OPENAI_API_KEY
 
 class OpenAIClient:
-    """A client for interacting with OpenAI's API.
+    """A client for interacting with OpenAI's API."""
     
-    This class implements the singleton pattern to ensure only one instance exists.
-    """
-    _instance: ClassVar[Optional['OpenAIClient']] = None
-    _initialized: ClassVar[bool] = False
-    
-    def __new__(cls, api_key: Optional[str] = None) -> 'OpenAIClient':
-        if cls._instance is None:
-            cls._instance = super(OpenAIClient, cls).__new__(cls)
-        return cls._instance
-    
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, system_prompt: Optional[str] = None):
         """Initialize the OpenAI client.
         
         Args:
             api_key: Optional API key. If not provided, will use OPENAI_API_KEY from utilities.
         """
-        if not self._initialized:
-            self.api_key = api_key or OPENAI_API_KEY
-            if not self.api_key:
-                raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY in environment variables.")
-            
-            self.client = OpenAI(api_key=self.api_key)
-            self._initialized = True
+
+        if not OPENAI_API_KEY:
+            raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY in environment variables.")
+        
+        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.system_prompt = system_prompt
     
     def generate_response(self, prompt: str) -> str:
         """Generate a text response using the OpenAI API.
@@ -43,18 +32,19 @@ class OpenAIClient:
         """
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4.1-nano",
-                messages=[{"role": "user", "content": prompt}]
+              model="gpt-4.1-nano",
+              messages=[
+                {
+                  "role": "developer",
+                  "content": self.system_prompt
+                },
+                {
+                  "role": "user", 
+                  "content": prompt
+                }
+              ]
             )
+
             return response.choices[0].message.content
         except OpenAIError as e:
             raise OpenAIError(f"Error generating response: {str(e)}")
-
-# Create a default instance for convenience
-# Note: This will raise an error if OPENAI_API_KEY is not set
-try:
-    openai_client = OpenAIClient()
-except ValueError as e:
-    # This allows the module to be imported without an API key
-    # The error will be raised when actually trying to use the client
-    openai_client = None
