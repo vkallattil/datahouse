@@ -11,7 +11,7 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from tools.language.clients import openai_client
+from modules.language.clients import openai_client
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
