@@ -11,11 +11,12 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from interfaces.agents.core import Message, AgentFactory
+from interfaces.agents.base import Message
+from interfaces.agents.chat import ChatAgent
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
-cli_agent = AgentFactory.create("cli")
+cli_agent = ChatAgent(system_prompt="You are a helpful assistant.")
 
 def handle_input(user_input: str) -> Response:
     """Process user input and return an appropriate response.

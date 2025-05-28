@@ -1,10 +1,10 @@
-from interfaces.agents.entities import Agent, Message
+from interfaces.agents.base import Agent, Message
 from typing import Optional, Any
 from openai import OpenAI, OpenAIError
 from utilities.env import OPENAI_API_KEY
 
 class ChatAgent(Agent[str, str]):
-    def __init__(self):
+    def __init__(self, system_prompt: str):
         super().__init__()
 
         if not OPENAI_API_KEY:

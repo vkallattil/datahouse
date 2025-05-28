@@ -27,19 +27,3 @@ class Agent(ABC, Generic[InputT, OutputT]):
     async def process(self, message: Message[InputT]) -> OutputT:
         """Process an incoming message and return a response."""
         pass
-    
-class AgentFactory:
-    """Simple factory for creating agent instances."""
-    _registry: Dict[str, Type[Agent]] = {}
-    
-    @classmethod
-    def register(cls, name: str, agent_cls: Type[Agent]) -> None:
-        """Register an agent class with the factory."""
-        cls._registry[name] = agent_cls
-    
-    @classmethod
-    def create(cls, name: str, **kwargs) -> Agent:
-        """Create a new agent instance by name."""
-        if name not in cls._registry:
-            raise ValueError(f"Unknown agent type: {name}")
-        return cls._registry[name](**kwargs)
