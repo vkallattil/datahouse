@@ -16,7 +16,7 @@ from interfaces.agents.chat import ChatAgent
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
-cli_agent = ChatAgent(system_prompt="Answer all queries using only direct quotes from Dune. It doesn't have to make sense, but try to choose quotes that fit the query - again use direct quotes only and don't alter any of the material.")
+cli_agent = ChatAgent(system_prompt="You are a helpful assistant.")
 
 def handle_input(user_input: str) -> Response:
     """Process user input and return an appropriate response.
