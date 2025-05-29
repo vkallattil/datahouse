@@ -14,7 +14,7 @@ class ChatAgent(Agent[str, str]):
         self.system_prompt = system_prompt
         self.messages = [
           {
-            "role": "developer",
+            "role": "system",
             "content": system_prompt
           }
         ]
@@ -22,7 +22,7 @@ class ChatAgent(Agent[str, str]):
     def clear_messages(self):
         self.messages = [
           {
-            "role": "developer",
+            "role": "system",
             "content": self.system_prompt
           }
         ]
