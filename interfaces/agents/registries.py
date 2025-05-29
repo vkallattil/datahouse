@@ -1,6 +1,7 @@
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Dict, Optional, List, Any
+from typing import Dict, Optional, List
+from interfaces.agents.tools import Tool
 
 @dataclass
 class ContextResource:
@@ -11,35 +12,83 @@ class ContextResource:
     description: str
     path: Path
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "path": str(self.path)
+        }
+
+class ContextResourceRegistry:
+    def __init__(self):
+        self.entries: Dict[str, ContextResource] = {}
+
+    def register(self, name: str, description: str, path: Path):
+        self.entries[name] = ContextResource(name, description, path)
+
+    def get(self, name: str) -> Optional[ContextResource]:
+        return self.entries.get(name)
+
+    def list(self) -> List[ContextResource]:
+        return list(self.entries.values())
+
 @dataclass
 class DocumentationLink:
+    """
+    Represents a documentation link.
+    """
     name: str
     description: str
     url: str
 
-@dataclass
-class ToolEntry:
-    name: str
-    description: str
-    tool: Any  # Can be Tool class or instance
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "url": self.url
+        }
 
-from typing import TypeVar, Generic
-
-T = TypeVar("T")
-
-class Registry(Generic[T]):
+class DocumentationLinkRegistry:
     def __init__(self):
-        self.entries: Dict[str, T] = {}
+        self.entries: Dict[str, DocumentationLink] = {}
 
-    def register(self, entry: T):
-        self.entries[entry.name] = entry
+    def register(self, name: str, description: str, url: str):
+        self.entries[name] = DocumentationLink(name, description, url)
 
-    def get(self, name: str) -> Optional[T]:
+    def get(self, name: str) -> Optional[DocumentationLink]:
         return self.entries.get(name)
 
-    def list(self) -> List[T]:
+    def list(self) -> List[DocumentationLink]:
         return list(self.entries.values())
 
-    def find_by_description(self, query: str) -> List[T]:
-        query_lower = query.lower()
-        return [e for e in self.entries.values() if query_lower in e.description.lower() or query_lower in e.name.lower()]
+@dataclass
+class ToolEntry:
+    """
+    Represents a tool entry.
+    """
+    name: str
+    description: str
+    tool: Tool
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "tool": self.tool
+        }
+
+class ToolRegistry:
+    def __init__(self):
+        self.entries: Dict[str, ToolEntry] = {}
+
+    def register(self, name: str, description: str, tool: Tool):
+        if name in self.entries:
+            raise ValueError(f"Tool {name} already registered")
+            
+        self.entries[name] = ToolEntry(name, description, tool)
+
+    def get(self, name: str) -> Optional[Tool]:
+        return self.entries.get(name).tool
+
+    def list(self) -> List[ToolEntry]:
+        return list(self.entries.values())

@@ -1,9 +1,13 @@
 from pathlib import Path
-from interfaces.agents.chat import ChatAgent
+from interfaces.agents.base import Agent, Message
+from interfaces.agents.openai_context import OpenAIChatContextManager
 from interfaces.agents.tools import Tool
-from interfaces.agents.registries import ContextResource, DocumentationLink, ToolEntry, Registry
+from interfaces.agents.registries import (
+    ContextResource, DocumentationLink, ToolEntry,
+    ContextResourceRegistry, DocumentationLinkRegistry, ToolRegistry
+)
 
-class DevelopmentManager(ChatAgent):
+class DevelopmentManager(Agent[str, str]):
     """
     The DevelopmentManager agent acts as a project-level orchestrator and context holder.
 
@@ -24,8 +28,8 @@ class DevelopmentManager(ChatAgent):
         Initializes the DevelopmentManager with dynamic registries for context files, documentation links, and tools.
         Each registry supports registration, retrieval, and natural language search via descriptions.
         """
-        # Compose a specialized system prompt for the DevelopmentManager
-        dev_manager_prompt = (
+        super().__init__()
+        self.system_prompt = (
             "You are the DevelopmentManager agent. "
             "You maintain comprehensive project context, including design specifications, requirements, and stakeholder preferences. "
             "Your responsibilities include receiving and interpreting feature requests, researching and evaluating existing solutions, "
@@ -33,26 +37,22 @@ class DevelopmentManager(ChatAgent):
             "You autonomously decide whether to delegate tasks or execute them directly, and you present completed features for review. "
             "Your role is to ensure thoughtful, well-informed project development and coordination."
         )
-        super().__init__(system_prompt=dev_manager_prompt)
+        self.context_manager = OpenAIChatContextManager(self.system_prompt)
 
         # Dynamic registries
-        self.context_resource_registry = Registry[ContextResource]()
-        self.documentation_link_registry = Registry[DocumentationLink]()
-        self.tool_registry = Registry[ToolEntry]()
+        self.context_resource_registry = ContextResourceRegistry()
+        self.documentation_link_registry = DocumentationLinkRegistry()
+        self.tool_registry = ToolRegistry()
 
-        # Example usage (commented):
-        # self.context_resource_registry.register(ContextResource(
-        #     name="design_spec",
-        #     description="Project design specifications markdown file.",
-        #     path=Path("docs/design_spec.md")
-        # ))
-        # self.documentation_link_registry.register(DocumentationLink(
-        #     name="project_overview",
-        #     description="Overview of the project documentation.",
-        #     url="https://company.com/docs/project_overview"
-        # ))
-        # self.tool_registry.register(ToolEntry(
-        #     name="example_tool",
-        #     description="A tool that demonstrates example functionality.",
-        #     tool=Tool  # Replace with actual Tool subclass or instance
-        # ))
+    def process(self, message: Message[str]) -> str:
+        """Generate a text response using the OpenAI API.
+        
+        Args:
+            message: The input prompt to send to the model.
+        Returns:
+            The generated text response.
+        Raises:
+            OpenAIError: If there's an error with the API call.
+        """
+        self.context_manager.add_user_message(message.content)
+        return self.context_manager.get_response()
