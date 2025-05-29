@@ -1,5 +1,7 @@
+from pathlib import Path
 from interfaces.agents.chat import ChatAgent
-from utilities.env import PROJECT_ROOT
+from interfaces.agents.tools import Tool
+from interfaces.agents.registries import ContextResource, DocumentationLink, ToolEntry, Registry
 
 class DevelopmentManager(ChatAgent):
     """
@@ -16,7 +18,12 @@ class DevelopmentManager(ChatAgent):
     
     This class is designed for extensibility: tools and agent integrations can be added to enable autonomous research, decision-making, and delegation.
     """
+
     def __init__(self):
+        """
+        Initializes the DevelopmentManager with dynamic registries for context files, documentation links, and tools.
+        Each registry supports registration, retrieval, and natural language search via descriptions.
+        """
         # Compose a specialized system prompt for the DevelopmentManager
         dev_manager_prompt = (
             "You are the DevelopmentManager agent. "
@@ -27,25 +34,25 @@ class DevelopmentManager(ChatAgent):
             "Your role is to ensure thoughtful, well-informed project development and coordination."
         )
         super().__init__(system_prompt=dev_manager_prompt)
-        
-        # Tool registry: add your tool instances here
-        self.tools = {}
 
-        # Use PROJECT_ROOT env variable if set, else default to two levels above this file
-        if not PROJECT_ROOT:
-            raise ValueError("PROJECT_ROOT environment variable is not set.")
-            
-        self.project_root = PROJECT_ROOT
+        # Dynamic registries
+        self.context_resource_registry = Registry[ContextResource]()
+        self.documentation_link_registry = Registry[DocumentationLink]()
+        self.tool_registry = Registry[ToolEntry]()
 
-    def register_tool(self, name, tool):
-        """Register a tool instance with a given name."""
-        self.tools[name] = tool
-
-    async def use_tool(self, tool_name, input):
-        """Call a registered tool by name with the given input."""
-        tool = self.tools.get(tool_name)
-        
-        if tool is None:
-            raise ValueError(f"Tool '{tool_name}' not found.")
-        
-        return await tool(input)
+        # Example usage (commented):
+        # self.context_resource_registry.register(ContextResource(
+        #     name="design_spec",
+        #     description="Project design specifications markdown file.",
+        #     path=Path("docs/design_spec.md")
+        # ))
+        # self.documentation_link_registry.register(DocumentationLink(
+        #     name="project_overview",
+        #     description="Overview of the project documentation.",
+        #     url="https://company.com/docs/project_overview"
+        # ))
+        # self.tool_registry.register(ToolEntry(
+        #     name="example_tool",
+        #     description="A tool that demonstrates example functionality.",
+        #     tool=Tool  # Replace with actual Tool subclass or instance
+        # ))
