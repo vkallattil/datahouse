@@ -2,7 +2,6 @@
 
 import json
 from typing import Dict, List, Optional, TypedDict
-from pathlib import Path
 import requests
 from urllib.parse import urlparse
 
