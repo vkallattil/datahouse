@@ -1,25 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, TypeVar, Generic
+from interfaces.agents.messages import Message
+from interfaces.agents.tools import Tool
+from interfaces.agents.types import InputT, OutputT
   
-# Type variables for input/output types
-InputT = TypeVar('InputT')
-OutputT = TypeVar('OutputT')
-
-@dataclass
-class Message(Generic[InputT]):
-    """Basic message container for agent communication."""
-    content: InputT
-    metadata: Dict[str, Any] = None
-
-class Tool(ABC, Generic[InputT, OutputT]):
-    """Base class for all tools that agents can use."""
-    
-    @abstractmethod
-    async def __call__(self, input: InputT) -> OutputT:
-        """Execute the tool with the given input."""
-        pass
-
 class Agent(ABC, Generic[InputT, OutputT]):
     """Base class for all agents."""
         
