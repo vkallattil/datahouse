@@ -1,6 +1,4 @@
 from interfaces.agents.chat import ChatAgent
-import os
-
 from utilities.env import PROJECT_ROOT
 
 class DevelopmentManager(ChatAgent):
