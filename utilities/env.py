@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 
 # Load environment variables from .env file
 load_dotenv()
@@ -10,4 +9,3 @@ CUSTOM_SEARCH_API_KEY = os.environ.get("CUSTOM_SEARCH_API_KEY")
 PROGRAMMABLE_SEARCH_ENGINE_ID = os.environ.get("PROGRAMMABLE_SEARCH_ENGINE_ID")
 LLAMA_CLOUD_API_KEY = os.environ.get("LLAMA_CLOUD_API_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT"))
