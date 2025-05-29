@@ -1,4 +1,3 @@
-from pathlib import Path
 from interfaces.agents.base import Agent, Message
 from interfaces.agents.openai_context import OpenAIChatContextManager
 from interfaces.agents.tools import Tool
