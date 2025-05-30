@@ -5,8 +5,8 @@ from interfaces.agents.base import Agent
 
 class AgentGraph:
     """
-    Graph-based agent team using networkx for agent collaboration and delegation.
-    Each agent is a node, and edges define possible delegation/communication paths.
+    Graph-based agent team using networkx for agent collaboration.
+    Each agent is a node, and edges define possible communication paths.
     """
     def __init__(self):
         self.graph = nx.DiGraph()

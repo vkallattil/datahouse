@@ -16,11 +16,10 @@ class DevelopmentManager(Agent[str, str]):
     - Accepts and interprets feature requests.
     - Researches existing solutions, evaluates documentation, and assesses library/tool suitability.
     - Conceptualizes solutions, ensuring compatibility with project specifications and constraints.
-    - Decides whether to delegate tasks to other agents/tools or execute them directly.
     - Integrates with tools and other agents to fulfill feature requests.
     - Receives completed features, reviews them, and presents results to the chat agent or project owner.
     
-    This class is designed for extensibility: tools and agent integrations can be added to enable autonomous research, decision-making, and delegation.
+    This class is designed for extensibility: tools and agent integrations can be added to enable autonomous research and decision-making.
     """
 
     def __init__(self):

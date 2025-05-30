@@ -25,7 +25,7 @@ dev_manager = DevelopmentManager()
 agent_graph = AgentGraph()
 agent_graph.add_agent("chat", cli_agent)
 agent_graph.add_agent("dev", dev_manager)
-agent_graph.connect("chat", "dev")  # ChatAgent can delegate to DevelopmentManager
+agent_graph.connect("chat", "dev")
 
 def handle_input(user_input: str) -> Response:
     """Process user input and return an appropriate response.
