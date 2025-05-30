@@ -14,7 +14,7 @@ from interfaces.cli.commands import (
 from interfaces.agents.base import Message
 from interfaces.agents.chat import ChatAgent
 from interfaces.agents.developer import DevelopmentManager
-from interfaces.agents.graph import AgentGraph, Delegate
+from interfaces.agents.graph import AgentGraph
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
