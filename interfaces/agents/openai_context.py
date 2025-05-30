@@ -22,7 +22,7 @@ class OpenAIChatContextManager:
     def add_user_message(self, content: str):
         self.messages.append({"role": "user", "content": content})
 
-    def add_assistant_message(self, content: str):
+    def _add_assistant_message(self, content: str):
         self.messages.append({"role": "assistant", "content": content})
 
     def get_response(self) -> str:
@@ -32,7 +32,7 @@ class OpenAIChatContextManager:
                 messages=self.messages
             )
             message_content = response.choices[0].message.content
-            self.add_assistant_message(message_content)
+            self._add_assistant_message(message_content)
             return message_content
         except OpenAIError as e:
             raise OpenAIError(f"Error generating response: {str(e)}")

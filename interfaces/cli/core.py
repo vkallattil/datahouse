@@ -13,10 +13,19 @@ from interfaces.cli.commands import (
 )
 from interfaces.agents.base import Message
 from interfaces.agents.chat import ChatAgent
+from interfaces.agents.developer import DevelopmentManager
+from interfaces.agents.graph import AgentGraph, Delegate
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
 cli_agent = ChatAgent(system_prompt="You are a helpful assistant.")
+dev_manager = DevelopmentManager()
+
+# Build the agent graph
+agent_graph = AgentGraph()
+agent_graph.add_agent("chat", cli_agent)
+agent_graph.add_agent("dev", dev_manager)
+agent_graph.connect("chat", "dev")  # ChatAgent can delegate to DevelopmentManager
 
 def handle_input(user_input: str) -> Response:
     """Process user input and return an appropriate response.
@@ -54,9 +63,9 @@ def handle_input(user_input: str) -> Response:
             
         return StringResponse(f"Unknown command: {command}")
     
-    # Process non-command input with CLI Agent
+    # Process non-command input through the agent graph, starting at ChatAgent
     try:
-        response = cli_agent.process(Message(user_input))
+        response = agent_graph.process(Message(user_input), start_agent="chat")
         return StringResponse(response)
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")
