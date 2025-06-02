@@ -32,7 +32,7 @@ class OpenAIChatContextManager:
                 messages=self.messages
             )
             message_content = response.choices[0].message.content
-            self._add_assistant_message(message_content)
+            self.add_assistant_message(message_content)
             return message_content
         except OpenAIError as e:
             raise OpenAIError(f"Error generating response: {str(e)}")

@@ -12,11 +12,11 @@ from interfaces.cli.commands import (
     MenuResponse, StringResponse, Response
 )
 from interfaces.agents.base import Message
-from interfaces.agents.developer import DevelopmentManager
+from interfaces.agents.datahouse import DatahouseAgent
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
-dev_manager = DevelopmentManager()
+datahouse_agent = DatahouseAgent()
 
 def handle_input(user_input: str) -> Response:
     """Process user input and return an appropriate response.
@@ -56,7 +56,7 @@ def handle_input(user_input: str) -> Response:
     
     # Process non-command input through the agent graph, starting at ChatAgent
     try:
-        response = dev_manager.process(Message(user_input))
+        response = datahouse_agent.process(Message(user_input))
         return StringResponse(response)
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")
