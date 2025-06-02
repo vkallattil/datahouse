@@ -22,7 +22,7 @@ class OpenAIChatContextManager:
     def add_user_message(self, content: str):
         self.messages.append({"role": "user", "content": content})
 
-    def _add_assistant_message(self, content: str):
+    def add_assistant_message(self, content: str):
         self.messages.append({"role": "assistant", "content": content})
 
     def get_response(self) -> str:

@@ -7,9 +7,9 @@ from interfaces.agents.registries import (
     ContextResourceRegistry, DocumentationLinkRegistry, ToolRegistry
 )
 
-class DevelopmentManager(Agent[str, str]):
+class DatahouseAgent(Agent[str, str]):
     """
-    The DevelopmentManager agent acts as a project-level orchestrator and context holder.
+    The DatahouseAgent acts as the main entry point for the Datahouse agent system.
 
     Responsibilities:
     - Maintains project context and resources, including design specifications, requirements, and owner preferences.
@@ -24,12 +24,12 @@ class DevelopmentManager(Agent[str, str]):
 
     def __init__(self):
         """
-        Initializes the DevelopmentManager with dynamic registries for context files, documentation links, and tools.
+        Initializes the DatahouseAgent with dynamic registries for context files, documentation links, and tools.
         Each registry supports registration, retrieval, and natural language search via descriptions.
         """
         super().__init__()
         self.system_prompt = (
-            "You are the DevelopmentManager agent. "
+            "You are the DatahouseAgent. "
             "You maintain comprehensive project context, including design specifications, requirements, and stakeholder preferences. "
             "Your responsibilities include receiving and interpreting feature requests, researching and evaluating existing solutions, "
             "conceptualizing and assessing approaches for alignment with project goals, and determining the best course of action. "
