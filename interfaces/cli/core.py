@@ -13,8 +13,6 @@ from interfaces.cli.commands import (
 )
 from interfaces.agents.core import DatahouseAgent
 
-# Initialize command history with file-based persistence
-history = hs.FileHistory("logs/command_log.txt")
 datahouse_agent = DatahouseAgent()
 
 def handle_input(user_input: str) -> Response:
@@ -148,7 +146,7 @@ def run_assistant_cli() -> None:
     while True:
         try:
             # Get user input with history support
-            user_input = prompt(">> ", history=history).strip()
+            user_input = prompt(">> ").strip()
 
             # Skip empty inputs
             if not user_input:
