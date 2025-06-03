@@ -11,7 +11,6 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from interfaces.agents.base import Message
 from interfaces.agents.core import DatahouseAgent
 
 # Initialize command history with file-based persistence
@@ -56,7 +55,7 @@ def handle_input(user_input: str) -> Response:
     
     # Process non-command input through the DatahouseAgent
     try:
-        response = datahouse_agent.process(Message(user_input))
+        response = datahouse_agent.process(user_input)
         return StringResponse(response)
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")

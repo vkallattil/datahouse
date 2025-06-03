@@ -1,4 +1,3 @@
-from interfaces.agents.base import Agent, Message
 from interfaces.agents.openai_context import OpenAIChatContextManager
 
 class DatahouseAgent():
@@ -16,7 +15,7 @@ class DatahouseAgent():
             "You are the DatahouseAgent, the primary entry point and orchestrator for the Datahouse system. "
         ))
 
-    def process(self, message: Message[str]) -> str:
+    def process(self, message: str) -> str:
         """
         Process a user message by leveraging the agent's knowledge and web access to generate a response.
         
