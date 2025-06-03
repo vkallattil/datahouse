@@ -54,7 +54,7 @@ def handle_input(user_input: str) -> Response:
             
         return StringResponse(f"Unknown command: {command}")
     
-    # Process non-command input through the agent graph, starting at ChatAgent
+    # Process non-command input through the DatahouseAgent
     try:
         response = datahouse_agent.process(Message(user_input))
         return StringResponse(response)
