@@ -52,11 +52,12 @@ def handle_input(user_input: str) -> Response:
         return StringResponse(f"Unknown command: {command}")
     
     # Process non-command input through the DatahouseAgent
+    
     try:
         response = datahouse_agent.process(user_input)
         return StringResponse(response)
     except Exception as e:
-        return StringResponse(f"Error generating response: {str(e)}")
+        return StringResponse(f"Error generating CLI response: {str(e)}")
 
 def handle_menu_response(menu_response: MenuResponse) -> Optional[Any]:
     """Display a menu and handle user selection.

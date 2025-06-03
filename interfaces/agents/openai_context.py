@@ -35,4 +35,4 @@ class OpenAIChatContextManager:
             self.add_assistant_message(message_content)
             return message_content
         except OpenAIError as e:
-            raise OpenAIError(f"Error generating response: {str(e)}")
+            raise OpenAIError(f"Error generating agent response: {str(e)}")
