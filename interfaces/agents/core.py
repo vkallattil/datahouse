@@ -9,23 +9,15 @@ from interfaces.agents.registries import (
 
 class DatahouseAgent(Agent[str, str]):
     """
-    The DatahouseAgent acts as the main entry point for the Datahouse agent system.
+    The DatahouseAgent is the primary entry point and orchestrator for the Datahouse system.
 
-    Responsibilities:
-    - Maintains project context and resources, including design specifications, requirements, and owner preferences.
-    - Accepts and interprets feature requests.
-    - Researches existing solutions, evaluates documentation, and assesses library/tool suitability.
-    - Conceptualizes solutions, ensuring compatibility with project specifications and constraints.
-    - Integrates with tools and other agents to fulfill feature requests.
-    - Receives completed features, reviews them, and presents results to the chat agent or project owner.
-    
-    This class is designed for extensibility: tools and agent integrations can be added to enable autonomous research and decision-making.
+    It is a broadly knowledgeable agent with access to tools, resources, and the web, enabling it to interpret user requests, coordinate workflows, and autonomously solve a wide range of problems. The agent leverages dynamic registries and integrations to research, analyze, and deliver comprehensive solutions, acting as the interface between users and the full capabilities of the Datahouse system.
     """
 
     def __init__(self):
         """
-        Initializes the DatahouseAgent with dynamic registries for context files, documentation links, and tools.
-        Each registry supports registration, retrieval, and natural language search via descriptions.
+        Initialize the DatahouseAgent with registries for context resources, documentation links, and tools.
+        These registries enable extensible, dynamic access to system knowledge and capabilities, supporting autonomous research and broad problem-solving.
         """
         super().__init__()
         self.system_prompt = (
@@ -42,12 +34,13 @@ class DatahouseAgent(Agent[str, str]):
         self.tool_registry = ToolRegistry()
 
     def process(self, message: Message[str]) -> str:
-        """Generate a text response using the OpenAI API.
+        """
+        Process a user message by leveraging the agent's knowledge, tools, and web access to generate a comprehensive response.
         
         Args:
-            message: The input prompt to send to the model.
+            message: The user input or request to process.
         Returns:
-            The generated text response.
+            The generated response based on available resources and reasoning.
         Raises:
             OpenAIError: If there's an error with the API call.
         """
