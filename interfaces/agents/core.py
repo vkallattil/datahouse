@@ -1,7 +1,7 @@
 from interfaces.agents.base import Agent, Message
 from interfaces.agents.openai_context import OpenAIChatContextManager
 
-class DatahouseAgent(Agent[str, str]):
+class DatahouseAgent():
     """
     The DatahouseAgent is the primary entry point and orchestrator for the Datahouse system.
 
@@ -10,13 +10,11 @@ class DatahouseAgent(Agent[str, str]):
 
     def __init__(self):
         """
-        Initialize the DatahouseAgent with a system prompt.
+        Initialize the DatahouseAgent's OpenAI chat context.
         """
-        super().__init__()
-        self.system_prompt = (
+        self.context_manager = OpenAIChatContextManager(system_prompt=(
             "You are the DatahouseAgent, the primary entry point and orchestrator for the Datahouse system. "
-        )
-        self.context_manager = OpenAIChatContextManager(self.system_prompt)
+        ))
 
     def process(self, message: Message[str]) -> str:
         """
