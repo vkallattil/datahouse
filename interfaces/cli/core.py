@@ -170,7 +170,7 @@ def run_assistant_cli() -> None:
         except CommandClear:
             # Clear screen and redisplay prompt
             os.system('cls' if os.name == 'nt' else 'clear')
-            cli_agent.clear_messages()
+            datahouse_agent.clear_messages()
             display_initial_prompt()
             
         except Exception as e:

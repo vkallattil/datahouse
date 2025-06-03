@@ -26,5 +26,5 @@ class DatahouseAgent():
         Raises:
             OpenAIError: If there's an error with the API call.
         """
-        self.context_manager.add_user_message(message.content)
+        self.context_manager.add_user_message(str)
         return self.context_manager.get_response()
