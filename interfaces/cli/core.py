@@ -12,7 +12,7 @@ from interfaces.cli.commands import (
     MenuResponse, StringResponse, Response
 )
 from interfaces.agents.base import Message
-from interfaces.agents.datahouse import DatahouseAgent
+from interfaces.agents.core import DatahouseAgent
 
 # Initialize command history with file-based persistence
 history = hs.FileHistory("logs/command_log.txt")
