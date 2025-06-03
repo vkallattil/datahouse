@@ -60,7 +60,7 @@ def handle_input(user_input: str) -> Response:
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")
 
-def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
+def handle_menu_response(menu_response: MenuResponse) -> Optional[Any]:
     """Display a menu and handle user selection.
     
     This function presents a menu to the user with the provided options and
@@ -78,7 +78,7 @@ def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
         ...     MenuOption("Option 2", lambda: print("Selected 2"))
         ... ]
         >>> menu = MenuResponse("Choose an option:", options)
-        >>> handle_menu(menu)
+        >>> handle_menu_response(menu)
     """
     if not menu_response.options:
         print("No options available.")
@@ -159,7 +159,7 @@ def run_assistant_cli() -> None:
 
             # Handle different response types
             if hasattr(response, "options") and hasattr(response, "prompt"):
-                handle_menu(response)
+                handle_menu_response(response)
             else:
                 print(response.to_string())
 
