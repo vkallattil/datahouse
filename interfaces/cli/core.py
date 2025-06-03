@@ -60,62 +60,6 @@ def handle_input(user_input: str) -> Response:
     except Exception as e:
         return StringResponse(f"Error generating response: {str(e)}")
 
-def handle_menu(menu_response: MenuResponse) -> Optional[Any]:
-    """Display a menu and handle user selection.
-    
-    This function presents a menu to the user with the provided options and
-    executes the corresponding action when a valid selection is made.
-    
-    Args:
-        menu_response: A MenuResponse object containing the menu prompt and options.
-        
-    Returns:
-        The result of the selected menu action, or None if no valid selection was made.
-        
-    Example:
-        >>> options = [
-        ...     MenuOption("Option 1", lambda: print("Selected 1")),
-        ...     MenuOption("Option 2", lambda: print("Selected 2"))
-        ... ]
-        >>> menu = MenuResponse("Choose an option:", options)
-        >>> handle_menu(menu)
-    """
-    if not menu_response.options:
-        print("No options available.")
-        return None
-        
-    # Display menu prompt and options
-    print(menu_response.prompt)
-    print("-" * 40)
-    
-    for i, option in enumerate(menu_response.options, 1):
-        print(f"{i}. {option.label}")
-    
-    # Get user selection
-    selected_option = input("Pick an option (or q to cancel): ").strip()
-    
-    if selected_option.lower() == 'q':
-        print("Operation cancelled.")
-        return None
-    
-    # Validate input
-    if not selected_option.isdigit():
-        print("Please enter a valid number.")
-        return None
-    
-    selected_index = int(selected_option) - 1
-    
-    if not (0 <= selected_index < len(menu_response.options)):
-        print(f"Please enter a number between 1 and {len(menu_response.options)}")
-        return None
-    
-    # Execute the selected action
-    try:
-        return menu_response.options[selected_index].action()
-    except Exception as e:
-        print(f"Error executing action: {e}")
-        return None
-
 def display_initial_prompt() -> None:
     """Display the initial welcome message and help instructions.
 
