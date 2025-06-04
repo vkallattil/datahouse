@@ -27,9 +27,11 @@ class OpenAIChatContextManager:
 
     def get_response(self) -> str:
         try:
+            # TODO: Implement a smarter way to handle messages
+            recent_messages = self.messages
             response = self.client.chat.completions.create(
                 model="gpt-4.1-nano",
-                messages=self.messages
+                messages=recent_messages
             )
             message_content = response.choices[0].message.content
             self.add_assistant_message(message_content)
