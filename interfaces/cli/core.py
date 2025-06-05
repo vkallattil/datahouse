@@ -146,28 +146,23 @@ def run_assistant_cli() -> None:
 
     while True:
         try:
-            # Get user input with history support
             user_input = prompt(">> ").strip()
 
-            # Skip empty inputs
             if not user_input:
                 continue
 
-            # Process the input
             response = handle_input(user_input)
 
-            # Handle different response types
             if hasattr(response, "options") and hasattr(response, "prompt"):
                 handle_menu_response(response)
             else:
-                print(response.to_string())
+                print("\n" + response.to_string() + "\n")
 
         except CommandExit:
             print("Exiting Datahouse CLI. Goodbye!")
             break
             
         except CommandClear:
-            # Clear screen and redisplay prompt
             os.system('cls' if os.name == 'nt' else 'clear')
             datahouse_agent.clear_messages()
             display_initial_prompt()
