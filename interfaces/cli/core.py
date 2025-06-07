@@ -11,7 +11,7 @@ from interfaces.cli.commands import (
     registry, CommandExit, CommandClear, 
     MenuResponse, StringResponse, Response
 )
-from interfaces.agents.core import DatahouseAgent
+from agents.core import DatahouseAgent
 
 datahouse_agent = DatahouseAgent()
 

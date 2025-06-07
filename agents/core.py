@@ -1,4 +1,5 @@
-from interfaces.agents.openai_context import OpenAIChatContextManager
+from openai import OpenAI
+from .prompts import SYSTEM_PROMPT, PLAN_PROMPT_TEMPLATE
 
 class DatahouseAgent():
     """
@@ -11,13 +12,20 @@ class DatahouseAgent():
         """
         Initialize the DatahouseAgent's OpenAI chat context.
         """
-        self.context_manager = OpenAIChatContextManager(system_prompt=(
-            "You are the DatahouseAgent, the primary entry point and orchestrator for the Datahouse system. "
-        ))
+
+        self.system_prompt = SYSTEM_PROMPT
+
+        self.messages = [
+            {"role": "developer", "content": self.system_prompt}
+        ]
+
+        self.client = OpenAI()
 
     def clear_messages(self):
         """Clear the chat history."""
-        self.context_manager.clear_messages()
+        self.messages = [
+            {"role": "developer", "content": self.system_prompt}
+        ]
 
     def process(self, message: str) -> str:
         """
@@ -30,5 +38,20 @@ class DatahouseAgent():
         Raises:
             OpenAIError: If there's an error with the API call.
         """
-        self.context_manager.add_user_message(message)
-        return self.context_manager.get_response()
+        
+        # Create a plan to resolve the user's request
+
+        plan_prompt = PLAN_PROMPT_TEMPLATE.format(message=message)
+        
+        plan = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            temperature=0.0,
+            messages=[
+                {"role": "developer", "content": self.system_prompt},
+                {"role": "user", "content": plan_prompt}
+            ]
+        ).choices[0].message.content
+
+        # Execute the plan
+
+        return plan
