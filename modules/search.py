@@ -56,8 +56,10 @@ def google_search(query: str, num_results: int = 10) -> List[SearchResult]:
         if 'error' in data:
             error_msg = data['error'].get('message', 'Unknown error')
             raise GoogleSearchError(f"Google Search API error: {error_msg}")
+
+        items = data.get('items', [])
             
-        return data.get('items', [])
+        return items
         
     except requests.exceptions.RequestException as e:
         raise GoogleSearchError(f"Failed to perform search: {str(e)}")
