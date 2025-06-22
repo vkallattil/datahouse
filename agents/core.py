@@ -2,9 +2,8 @@ import json
 from openai import OpenAI
 from .prompts import SYSTEM_PROMPT
 from .tool_selector import ToolSelector
-from typing import Callable
-from modules.search import google_search
-from modules.crawl import get_page
+from .tool_registry import ToolRegistry
+from typing import Dict, Any, List, Tuple
 
 class DatahouseAgent():
     """
@@ -21,16 +20,17 @@ class DatahouseAgent():
         self.system_prompt = SYSTEM_PROMPT
 
         self.messages = [
-            {"role": "developer", "content": self.system_prompt}
+            {"role": "system", "content": self.system_prompt}
         ]
 
         self.client = OpenAI()
         self.tool_selector = ToolSelector(self.client)
+        self.tool_registry = ToolRegistry()
 
     def clear_messages(self):
         """Clear the chat history."""
         self.messages = [
-            {"role": "developer", "content": self.system_prompt}
+            {"role": "system", "content": self.system_prompt}
         ]
 
     def process(self, message: str) -> str:
@@ -57,3 +57,43 @@ class DatahouseAgent():
                 tool_list.append(f"{tool_name} (Score: {score:.3f})")
             
             return f"Tools needed: {', '.join(tool_list)}"
+
+    def register_tool(self, 
+                     name: str, 
+                     function, 
+                     parameter_schema: Dict[str, Any],
+                     description: str = "") -> None:
+        """
+        Register a new tool with the agent.
+        
+        Args:
+            name: Tool name
+            function: The function to execute
+            parameter_schema: Schema defining required parameters and types
+            description: Tool description
+        """
+        self.tool_registry.register_tool(name, function, parameter_schema, description)
+
+    def unregister_tool(self, name: str) -> bool:
+        """
+        Remove a tool from the agent.
+        
+        Args:
+            name: Tool name to remove
+            
+        Returns:
+            True if tool was removed, False if not found
+        """
+        return self.tool_registry.unregister_tool(name)
+
+    def get_available_tools(self) -> List[str]:
+        """Get a list of all available tool names."""
+        return self.tool_registry.get_available_tools()
+
+    def get_tool_info(self) -> Dict[str, Any]:
+        """Get information about the tool selector and available tools."""
+        return {
+            "available_tools": self.get_available_tools(),
+            "tool_details": self.tool_registry.get_tool_info(),
+            "tool_selector_info": self.tool_selector.get_cache_info()
+        }

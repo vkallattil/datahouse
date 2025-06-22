@@ -1,7 +1,45 @@
 """
-Configuration file for tool examples and negative examples used by the ToolSelector.
-This separates the data from the logic, making the ToolSelector more generic and reusable.
+Configuration file for tool registration and examples used by the ToolSelector.
+This provides a flexible, configuration-driven approach to tool management.
 """
+
+from typing import Dict, Any, Callable, List, Tuple
+from modules.search import google_search
+from modules.crawl import get_page
+
+# Tool registration schema
+# Each tool has: function, parameter_schema, description
+TOOL_REGISTRY = {
+    "google_search": {
+        "function": google_search,
+        "parameter_schema": {
+            "query": {
+                "type": str,
+                "required": True,
+                "description": "Search query string"
+            },
+            "num_results": {
+                "type": int,
+                "required": False,
+                "default": 10,
+                "description": "Number of results to return (max 10)"
+            }
+        },
+        "description": "Search the web for current information"
+    },
+    
+    "get_page": {
+        "function": get_page,
+        "parameter_schema": {
+            "url": {
+                "type": str,
+                "required": True,
+                "description": "URL of the page to retrieve"
+            }
+        },
+        "description": "Retrieve and parse content from web pages"
+    }
+}
 
 # Tool examples with positive cases for each tool
 # Format: (tool_name, example_text)
