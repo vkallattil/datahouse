@@ -24,11 +24,8 @@ build/
 .coverage
 htmlcov/
 
-# Log Store
-/logs/
-
-# Documentation
-/docs/
+# Cache Store
+/cache/
 
 # MacOS
 **/.DS_Store

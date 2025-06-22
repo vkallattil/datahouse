@@ -1,5 +1,10 @@
+import json
 from openai import OpenAI
-from .prompts import SYSTEM_PROMPT, PLAN_PROMPT_TEMPLATE
+from .prompts import SYSTEM_PROMPT
+from .tool_selector import ToolSelector
+from typing import Callable
+from modules.search import google_search
+from modules.crawl import get_page
 
 class DatahouseAgent():
     """
@@ -20,6 +25,7 @@ class DatahouseAgent():
         ]
 
         self.client = OpenAI()
+        self.tool_selector = ToolSelector(self.client)
 
     def clear_messages(self):
         """Clear the chat history."""
@@ -38,20 +44,16 @@ class DatahouseAgent():
         Raises:
             OpenAIError: If there's an error with the API call.
         """
+
+        # Use the tool selector to determine which tools to use
+        selected_tools = self.tool_selector.select_tool(message)
         
-        # Create a plan to resolve the user's request
-
-        plan_prompt = PLAN_PROMPT_TEMPLATE.format(message=message)
-        
-        plan = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            temperature=0.0,
-            messages=[
-                {"role": "developer", "content": self.system_prompt},
-                {"role": "user", "content": plan_prompt}
-            ]
-        ).choices[0].message.content
-
-        # Execute the plan
-
-        return plan
+        if not selected_tools:
+            return "No specific tools needed for this request."
+        else:
+            # Format the response to show all selected tools
+            tool_list = []
+            for tool_name, score in selected_tools:
+                tool_list.append(f"{tool_name} (Score: {score:.3f})")
+            
+            return f"Tools needed: {', '.join(tool_list)}"
