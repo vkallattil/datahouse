@@ -1,5 +1,6 @@
 """
-Optimized utility functions for the agents module with consolidated functionality.
+Agent utility functions for parameter extraction, validation, and type conversion.
+Consolidated functionality for the agents module.
 """
 
 import re

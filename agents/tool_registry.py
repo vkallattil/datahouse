@@ -5,7 +5,7 @@ Optimized tool registry system for dynamic tool registration and execution.
 from typing import Dict, Any, Callable, List, Tuple, Optional
 from .tool_config import TOOL_REGISTRY
 from .parameter_extractor import LLMParameterExtractor
-from .utils import validate_and_convert_parameters, extract_parameters_simple
+from utilities.agent_utils import validate_and_convert_parameters, extract_parameters_simple
 
 class ToolRegistry:
     """Optimized tool registry with simplified architecture and better performance."""

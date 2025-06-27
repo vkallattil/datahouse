@@ -6,15 +6,15 @@ This document provides a comprehensive log of all optimizations, refactoring, an
 
 ## Optimization Timeline
 
-### Session 1: Refactoring for Code Deduplication (2025-06-27)
-**Focus**: Eliminating redundant code and consolidating common functionality
-
-### Session 2: Comprehensive Optimization (2025-06-27)
-**Focus**: Performance improvements, architecture simplification, and code elegance
+- [Session 1: Refactoring for Code Deduplication](#session-1-refactoring-for-code-deduplication-2025-06-27)
+- [Session 2: Comprehensive Optimization](#session-2-comprehensive-optimization-2025-06-27)
 
 ---
 
-## Session 1: Refactoring for Code Deduplication
+## [Session 1: Refactoring for Code Deduplication](#session-1-refactoring-for-code-deduplication-2025-06-27) (2025-06-27)
+**[↑ Back to Index](#optimization-timeline)**
+
+**Focus**: Eliminating redundant code and consolidating common functionality
 
 ### Redundancies Identified and Fixed
 
@@ -73,9 +73,14 @@ extract_parameters_simple(message: str, parameter_schema: Dict[str, Any]) -> Dic
 - **New Files Created**: 1 (`utils.py`)
 - **Breaking Changes**: 0
 
+**[↑ Back to Index](#optimization-timeline)**
+
 ---
 
-## Session 2: Comprehensive Optimization
+## [Session 2: Comprehensive Optimization](#session-2-comprehensive-optimization-2025-06-27) (2025-06-27)
+**[↑ Back to Index](#optimization-timeline)**
+
+**Focus**: Performance improvements, architecture simplification, and code elegance
 
 ### Performance and Architecture Improvements
 
@@ -129,12 +134,14 @@ extract_parameters_simple(message: str, parameter_schema: Dict[str, Any]) -> Dic
 - Simplified type conversion logic
 - Reduced parameter validation complexity
 - Added backward compatibility layer
+- **Moved to `utilities/agent_utils.py` for better organization**
 
 **Benefits**:
 - Better type safety with dataclasses
 - Cleaner function interfaces
 - Reduced code duplication
 - Maintained backward compatibility
+- **Better module organization**
 
 #### 5. **tool_registry.py - 20% Reduction (152 → 122 lines)**
 **Key Changes**:
@@ -192,13 +199,15 @@ extract_parameters_simple(message: str, parameter_schema: Dict[str, Any]) -> Dic
 - **Performance Improvements**: 3x faster similarity calculations, 20% faster file operations
 - **Breaking Changes**: 0 (backward compatibility maintained)
 
+**[↑ Back to Index](#optimization-timeline)**
+
 ---
 
 ## Combined Impact Assessment
 
 ### **Overall Code Reduction**
-- **Session 1**: ~150 lines eliminated through deduplication
-- **Session 2**: ~25-30% reduction across all files
+- **[Session 1](#session-1-refactoring-for-code-deduplication-2025-06-27)**: ~150 lines eliminated through deduplication
+- **[Session 2](#session-2-comprehensive-optimization-2025-06-27)**: ~25-30% reduction across all files
 - **Total**: Approximately **35-40% overall code reduction**
 
 ### **Performance Improvements**
@@ -281,10 +290,13 @@ All optimizations maintain backward compatibility:
 1. `core.py` - 40% reduction
 2. `tool_selector.py` - 35% reduction
 3. `parameter_extractor.py` - 30% reduction
-4. `utils.py` - 25% reduction (new file created)
+4. `utils.py` - 25% reduction (moved to `utilities/agent_utils.py`)
 5. `tool_registry.py` - 20% reduction
 6. `embedding_cache.py` - 30% reduction
 7. `tool_config.py` - 40% reduction
 8. `prompts.py` - 60% reduction
+
+### **File Reorganization**
+- **`agents/utils.py`** → **`utilities/agent_utils.py`**: Moved utility functions to dedicated utilities module for better organization and reusability across the project.
 
 The optimization effort successfully transformed the codebase into a more elegant, efficient, and maintainable system while preserving all existing functionality. The code is now significantly easier to work with and provides a solid foundation for future enhancements. 

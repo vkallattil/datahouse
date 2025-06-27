@@ -7,7 +7,7 @@ import re
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from openai import OpenAI
-from .utils import extract_query_from_message, extract_first_url_from_text, convert_value_to_type
+from utilities.agent_utils import extract_query_from_message, extract_first_url_from_text, convert_value_to_type
 
 @dataclass
 class ExtractionConfig:
