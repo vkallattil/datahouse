@@ -1,50 +1,33 @@
 """
-Configuration file for tool registration and examples used by the ToolSelector.
-This provides a flexible, configuration-driven approach to tool management.
+Optimized configuration for tool registration and examples with reduced repetition.
 """
 
 from typing import Dict, Any, Callable, List, Tuple
 from modules.search import google_search
 from modules.crawl import get_page
 
-# Tool registration schema
-# Each tool has: function, parameter_schema, description
+# Tool registration schema - more compact structure
 TOOL_REGISTRY = {
     "google_search": {
         "function": google_search,
         "parameter_schema": {
-            "query": {
-                "type": str,
-                "required": True,
-                "description": "Search query string"
-            },
-            "num_results": {
-                "type": int,
-                "required": False,
-                "default": 10,
-                "description": "Number of results to return (max 10)"
-            }
+            "query": {"type": str, "required": True, "description": "Search query string"},
+            "num_results": {"type": int, "required": False, "default": 10, "description": "Number of results to return (max 10)"}
         },
         "description": "Search the web for current information"
     },
-    
     "get_page": {
         "function": get_page,
         "parameter_schema": {
-            "url": {
-                "type": str,
-                "required": True,
-                "description": "URL of the page to retrieve"
-            }
+            "url": {"type": str, "required": True, "description": "URL of the page to retrieve"}
         },
         "description": "Retrieve and parse content from web pages"
     }
 }
 
-# Tool examples with positive cases for each tool
-# Format: (tool_name, example_text)
+# Tool examples - more compact format
 TOOL_EXAMPLES = [
-    # Google Search - POSITIVE examples (should match)
+    # Google Search examples
     ("google_search", "find the latest news about iran"),
     ("google_search", "search for current information"),
     ("google_search", "get the latest report"),
@@ -61,7 +44,7 @@ TOOL_EXAMPLES = [
     ("google_search", "look up facts online"),
     ("google_search", "search for information"),
     
-    # Get Page - POSITIVE examples
+    # Get Page examples
     ("get_page", "read this webpage"),
     ("get_page", "extract content from url"),
     ("get_page", "analyze this article"),
@@ -76,42 +59,41 @@ TOOL_EXAMPLES = [
     ("get_page", "read webpage content"),
 ]
 
-# Examples that should NOT trigger any tools
-# These are queries that can be answered with general knowledge or don't need external data
+# Negative examples - categorized for better organization
 NEGATIVE_EXAMPLES = [
-    # General conversation and greetings
+    # General conversation
     "hello", "hi", "how are you", "goodbye", "bye", "thank you", "thanks",
     
-    # Questions about the AI itself
+    # AI questions
     "what is your name", "what can you do", "help", "who are you",
     "tell me about yourself", "what are your capabilities",
     
-    # General knowledge questions (can be answered without tools)
+    # General knowledge (no tools needed)
     "what is the capital of france", "how many planets are in the solar system",
     "what is the meaning of life", "explain photosynthesis",
     "what is machine learning", "how does gravity work",
     "what is the difference between a cat and a dog",
     
-    # Creative and subjective requests
+    # Creative requests
     "tell me a joke", "write a poem", "create a story",
     "give me advice", "what should I do", "recommend something",
     
-    # Simple calculations or definitions
+    # Simple calculations/definitions
     "what is 2+2", "define happiness", "explain democracy",
     "what does this word mean", "calculate something",
     
-    # Personal opinions or preferences
+    # Opinions/preferences
     "what do you think about", "do you like", "what's your opinion",
     "which is better", "should I",
     
-    # Meta questions about the conversation
+    # Meta questions
     "what did you just say", "repeat that", "can you explain",
     "I don't understand", "what do you mean",
     
-    # Simple clarifications
+    # Clarifications
     "what", "huh", "pardon", "excuse me",
     
-    # Requests for general information (not current/real-time)
+    # General information (not current)
     "what is a computer", "how do plants grow", "what is love",
     "explain quantum physics", "what is the internet",
 ] 
