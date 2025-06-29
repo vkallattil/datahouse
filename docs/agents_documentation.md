@@ -45,48 +45,48 @@ The agents module follows a layered architecture:
 ### Key Components
 
 #### `AgentConfig` Dataclass
-```python
-@dataclass
-class AgentConfig:
-    system_prompt: str = SYSTEM_PROMPT
-    cache_dir: str = "cache"
-```
-- **Purpose**: Configuration for the DatahouseAgent
-- **Fields**: System prompt and cache directory location
+Configuration object for agent initialization with system prompt and cache directory settings.
 
 #### `Message` Dataclass
-```python
-@dataclass
-class Message:
-    role: str
-    content: str
-```
-- **Purpose**: Represents a chat message
-- **Fields**: Role (system/user/assistant) and content
+Simple message container with role and content fields for chat history management.
 
 #### `DatahouseAgent` Class
-**Main Methods**:
-- `__init__(config)`: Initialize with optional configuration
-- `process(message)`: Process user message and return tool selection
-- `register_tool(name, function, schema, description)`: Register new tools
-- `unregister_tool(name)`: Remove tools from registry
-- `get_available_tools()`: List all registered tools
-- `get_tool_info()`: Get comprehensive tool information
+Main agent class that orchestrates tool selection, parameter extraction, and execution.
+
+**Key Methods:**
+- `process(message)`: Process user messages and return tool selection or response
+- `register_tool(name, function, schema, description)`: Register new tools dynamically
+- `get_tool_info()`: Get comprehensive information about all tools and cache status
 
 ### Usage Example
 ```python
 from agents.core import DatahouseAgent, AgentConfig
 
-# Initialize with custom config
-config = AgentConfig(cache_dir="custom_cache")
+# Initialize agent with custom configuration
+config = AgentConfig(
+    system_prompt="You are a helpful AI assistant with web access.",
+    cache_dir="my_cache"
+)
 agent = DatahouseAgent(config)
 
-# Process a message
+# Process user requests
 response = agent.process("search for latest news about AI")
 print(response)  # "Tools needed: google_search (0.856)"
 
-# Register a custom tool
-agent.register_tool("custom_tool", my_function, schema, "Description")
+# Register custom tools
+def weather_tool(city: str, units: str = "celsius"):
+    return f"Weather for {city} in {units}"
+
+weather_schema = {
+    "city": {"type": str, "required": True, "description": "City name"},
+    "units": {"type": str, "required": False, "default": "celsius"}
+}
+
+agent.register_tool("weather", weather_tool, weather_schema, "Get weather information")
+
+# Get system information
+info = agent.get_tool_info()
+print(f"Available tools: {info['available_tools']}")
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -101,53 +101,45 @@ agent.register_tool("custom_tool", my_function, schema, "Description")
 ### Key Components
 
 #### `EmbeddingData` Dataclass
-```python
-@dataclass
-class EmbeddingData:
-    embeddings: Dict[str, List[float]]
-    data_hash: str
-```
-- **Purpose**: Container for embedding data
-- **Fields**: Embeddings dictionary and data hash for cache validation
+Container for embeddings and data hash for cache validation.
 
 #### `UnifiedCacheManager` Class
-**Purpose**: Unified cache management for both tool and negative embeddings
-
-**Key Methods**:
-- `save_all(tool_data, negative_data)`: Save both embedding types
-- `load_all(tool_hash, negative_hash)`: Load both embedding types
-- `clear_all()`: Clear all cached embeddings
-- `get_info(tool_hash, negative_hash)`: Get comprehensive cache information
+Unified cache management for both tool and negative embeddings with save/load operations.
 
 #### `ToolSelector` Class
-**Main Methods**:
-- `__init__(client, cache_dir)`: Initialize with OpenAI client and cache directory
-- `select_tool(message, threshold, max_tools)`: Select appropriate tools for message
-- `clear_cache()`: Clear all cached embeddings
-- `get_available_tools()`: List available tool names
-- `get_cache_info()`: Get comprehensive cache information
+Main tool selection component using semantic similarity with OpenAI embeddings.
 
-### Performance Features
-- **Numpy Integration**: 3x faster similarity calculations
-- **Unified Caching**: Consolidated cache operations
-- **Batch Processing**: Efficient embedding generation
-- **Negative Examples**: Prevents false positives
+**Key Methods:**
+- `select_tool(message, threshold, max_tools)`: Select appropriate tools for user message
+- `clear_cache()`: Clear all cached embeddings
+- `get_cache_info()`: Get comprehensive cache information
 
 ### Usage Example
 ```python
 from agents.tool_selector import ToolSelector
 from openai import OpenAI
 
-client = OpenAI()
-selector = ToolSelector(client, cache_dir="cache")
+# Initialize tool selector with OpenAI client
+client = OpenAI(api_key="your-api-key")
+selector = ToolSelector(client, cache_dir="embeddings_cache")
 
-# Select tools for a message
-tools = selector.select_tool("find current news about technology", threshold=0.4)
-print(tools)  # [('google_search', 0.856), ('get_page', 0.234)]
+# Select tools for user message
+tools = selector.select_tool(
+    "find the latest news about climate change",
+    threshold=0.5,
+    max_tools=3
+)
 
-# Get cache information
+for tool_name, similarity_score in tools:
+    print(f"{tool_name}: {similarity_score:.3f}")
+
+# Manage cache
 cache_info = selector.get_cache_info()
-print(cache_info)
+print(f"Embedding count: {cache_info['embedding_count']}")
+print(f"Cache size: {cache_info['tool_cache_size']} bytes")
+
+# Clear cache if needed
+selector.clear_cache()
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -165,53 +157,53 @@ print(cache_info)
 - **LLM Integration**: Intelligent parameter extraction
 - **Error Handling**: Comprehensive error management
 
-### Main Methods
-- `register_tool(name, function, schema, description)`: Register new tool
-- `unregister_tool(name)`: Remove tool from registry
-- `extract_parameters(message, tool_name)`: Extract parameters from message
-- `validate_parameters(tool_name, parameters)`: Validate against schema
-- `execute_tool(tool_name, parameters)`: Execute tool with parameters
-- `get_tool_info()`: Get information about all tools
+### `ToolRegistry` Class
+Manages tool registration, parameter extraction, validation, and execution.
 
-### Parameter Schema Format
-```python
-parameter_schema = {
-    "query": {
-        "type": str,
-        "required": True,
-        "description": "Search query string"
-    },
-    "num_results": {
-        "type": int,
-        "required": False,
-        "default": 10,
-        "description": "Number of results"
-    }
-}
-```
+**Key Methods:**
+- `register_tool(name, function, schema, description)`: Register new tools
+- `extract_parameters(message, tool_name)`: Extract parameters using LLM or fallback
+- `execute_tool(tool_name, parameters)`: Execute tools with validation
+- `get_tool_info()`: Get information about all registered tools
 
 ### Usage Example
 ```python
 from agents.tool_registry import ToolRegistry
 from openai import OpenAI
 
-client = OpenAI()
+# Initialize registry with OpenAI client for LLM extraction
+client = OpenAI(api_key="your-api-key")
 registry = ToolRegistry(client)
 
-# Register a tool
-def my_search_function(query: str, limit: int = 10):
-    return f"Searching for: {query} with limit: {limit}"
+# Register a custom tool
+def stock_price_tool(symbol: str, exchange: str = "NASDAQ"):
+    return f"Stock price for {symbol} on {exchange}"
 
-schema = {
-    "query": {"type": str, "required": True, "description": "Search query"},
-    "limit": {"type": int, "required": False, "default": 10, "description": "Result limit"}
+stock_schema = {
+    "symbol": {"type": str, "required": True, "description": "Stock symbol"},
+    "exchange": {"type": str, "required": False, "default": "NASDAQ"}
 }
 
-registry.register_tool("my_search", my_search_function, schema, "Custom search tool")
+registry.register_tool("stock_price", stock_price_tool, stock_schema, "Get stock prices")
 
-# Extract and execute
-params = registry.extract_parameters("search for python tutorials", "my_search")
-success, result, error = registry.execute_tool("my_search", params)
+# Extract parameters from user message
+params = registry.extract_parameters(
+    "get stock price for AAPL on NYSE",
+    "stock_price"
+)
+print(params)  # {'symbol': 'AAPL', 'exchange': 'NYSE'}
+
+# Execute the tool
+success, result, error = registry.execute_tool("stock_price", params)
+if success:
+    print(f"Result: {result}")
+else:
+    print(f"Error: {error}")
+
+# Get all tool information
+tool_info = registry.get_tool_info()
+for name, info in tool_info.items():
+    print(f"{name}: {info['description']}")
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -226,57 +218,54 @@ success, result, error = registry.execute_tool("my_search", params)
 ### Key Components
 
 #### `ExtractionConfig` Dataclass
-```python
-@dataclass
-class ExtractionConfig:
-    model: str = "gpt-3.5-turbo"
-    temperature: float = 0.1
-    max_tokens: int = 200
-    system_prompt: str = "You are a parameter extraction assistant..."
-```
-- **Purpose**: Configuration for parameter extraction
-- **Fields**: Model, temperature, token limits, and system prompt
+Configuration for LLM-based parameter extraction with model, temperature, and token settings.
 
 #### `LLMParameterExtractor` Class
-**Main Methods**:
-- `extract_parameters(message, tool_name, schema)`: Extract parameters using LLM
-- `batch_extract(messages, tool_name, schema)`: Extract for multiple messages
-- `_create_prompt(message, tool_name, schema)`: Create extraction prompt
-- `_parse_response(content, schema)`: Parse LLM response
-- `_fallback_extraction(message, schema)`: Fallback when LLM fails
+Extracts parameters from user messages using LLM intelligence with fallback mechanisms.
 
-### Features
-- **Template-based Prompts**: Clean, consistent prompt generation
-- **JSON Parsing**: Robust JSON extraction from LLM responses
-- **Type Conversion**: Automatic type validation and conversion
-- **Fallback Logic**: Simple extraction when LLM unavailable
-- **Error Handling**: Comprehensive error management
+**Key Methods:**
+- `extract_parameters(message, tool_name, schema)`: Extract parameters using LLM
+- `batch_extract(messages, tool_name, schema)`: Extract parameters for multiple messages
 
 ### Usage Example
 ```python
 from agents.parameter_extractor import LLMParameterExtractor, ExtractionConfig
 from openai import OpenAI
 
-client = OpenAI()
-config = ExtractionConfig(temperature=0.1, model="gpt-4")
+# Initialize extractor with custom configuration
+client = OpenAI(api_key="your-api-key")
+config = ExtractionConfig(
+    model="gpt-4",
+    temperature=0.1,
+    max_tokens=200
+)
 extractor = LLMParameterExtractor(client, config)
 
+# Define parameter schema
 schema = {
     "query": {"type": str, "required": True, "description": "Search query"},
-    "limit": {"type": int, "required": False, "default": 10, "description": "Result limit"}
+    "limit": {"type": int, "required": False, "default": 10, "description": "Result limit"},
+    "language": {"type": str, "required": False, "default": "en", "description": "Language"}
 }
 
-# Extract parameters
+# Extract parameters from user message
 params = extractor.extract_parameters(
-    "search for machine learning tutorials with 20 results",
+    "search for machine learning tutorials with 20 results in Spanish",
     "search_tool",
     schema
 )
-print(params)  # {'query': 'machine learning tutorials', 'limit': 20}
+print(params)  # {'query': 'machine learning tutorials', 'limit': 20, 'language': 'es'}
 
-# Batch extraction
-messages = ["search for python", "find AI articles"]
+# Batch extraction for multiple messages
+messages = [
+    "search for python tutorials",
+    "find AI articles with 15 results",
+    "get weather for London"
+]
+
 batch_params = extractor.batch_extract(messages, "search_tool", schema)
+for i, params in enumerate(batch_params):
+    print(f"Message {i+1}: {params}")
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -294,156 +283,51 @@ batch_params = extractor.batch_extract(messages, "search_tool", schema)
 - **Metadata Tracking**: Version and hash-based validation
 - **Error Recovery**: Graceful handling of cache corruption
 
-### Main Methods
-- `save_embeddings(embeddings, data_hash, version)`: Save embeddings with metadata
-- `load_embeddings(current_data_hash)`: Load if cache is valid
-- `clear_cache()`: Remove all cached data
-- `get_cache_info()`: Get cache metadata
-- `is_cache_valid(current_data_hash)`: Check cache validity
-- `get_cache_size()`: Get cache size in bytes
+### `EmbeddingCache` Class
+Manages persistent caching of embeddings with automatic validation.
 
-### Cache Structure
-```
-cache/
-├── tool_embeddings.pkl      # Tool embeddings data
-├── tool_metadata.json       # Tool cache metadata
-├── negative_embeddings.pkl  # Negative examples data
-└── negative_metadata.json   # Negative cache metadata
-```
+**Key Methods:**
+- `save_embeddings(embeddings, data_hash, version)`: Save embeddings with metadata
+- `load_embeddings(current_data_hash)`: Load embeddings if cache is valid
+- `clear_cache()`: Clear cached embeddings
+- `get_cache_info()`: Get cache metadata
 
 ### Usage Example
 ```python
 from agents.embedding_cache import EmbeddingCache
 
-# Initialize cache
-cache = EmbeddingCache(cache_dir="cache", prefix="tool")
+# Initialize cache with custom directory and prefix
+cache = EmbeddingCache(cache_dir="my_embeddings", prefix="custom")
 
-# Save embeddings
-embeddings = {"example": [0.1, 0.2, 0.3]}
-data_hash = "abc123"
+# Prepare embeddings and data hash
+embeddings = {
+    "example1": [0.1, 0.2, 0.3, 0.4],
+    "example2": [0.5, 0.6, 0.7, 0.8]
+}
+data_hash = "abc123def456"
+
+# Save embeddings to cache
 success = cache.save_embeddings(embeddings, data_hash, version="1.0")
+print(f"Save successful: {success}")
 
-# Load embeddings
+# Load embeddings from cache
 loaded_embeddings = cache.load_embeddings(data_hash)
 if loaded_embeddings:
-    print("Cache hit!")
+    print("Cache hit! Loaded embeddings:")
+    for key, embedding in loaded_embeddings.items():
+        print(f"  {key}: {embedding[:2]}...")  # Show first 2 values
 else:
-    print("Cache miss, rebuilding...")
+    print("Cache miss - embeddings not found or invalid")
 
-# Check cache status
+# Get cache information
 cache_info = cache.get_cache_info()
-is_valid = cache.is_cache_valid(data_hash)
-cache_size = cache.get_cache_size()
-```
+if cache_info:
+    print(f"Data hash: {cache_info['data_hash']}")
+    print(f"Version: {cache_info['version']}")
+    print(f"Cache size: {cache.get_cache_size()} bytes")
 
-**[↑ Back to Index](#module-index)**
-
----
-
-## [Tool Configuration (`tool_config.py`)](#tool-configuration-tool_configpy)
-**[↑ Back to Index](#module-index)**
-
-**Purpose**: Configuration-driven tool registration and example management
-
-### Key Components
-
-#### `TOOL_REGISTRY`
-Pre-configured tool registry with built-in tools:
-- **google_search**: Web search functionality
-- **get_page**: Web page content retrieval
-
-#### `TOOL_EXAMPLES`
-Positive examples for semantic matching:
-- Search-related queries for google_search
-- Content retrieval queries for get_page
-
-#### `NEGATIVE_EXAMPLES`
-Examples that should NOT trigger tools:
-- General conversation
-- AI questions
-- General knowledge queries
-- Creative requests
-
-### Tool Schema Format
-```python
-TOOL_REGISTRY = {
-    "tool_name": {
-        "function": actual_function,
-        "parameter_schema": {
-            "param_name": {
-                "type": type_class,
-                "required": bool,
-                "default": default_value,
-                "description": "Parameter description"
-            }
-        },
-        "description": "Tool description"
-    }
-}
-```
-
-### Usage Example
-```python
-from agents.tool_config import TOOL_REGISTRY, TOOL_EXAMPLES, NEGATIVE_EXAMPLES
-
-# Access built-in tools
-search_tool = TOOL_REGISTRY["google_search"]
-print(search_tool["description"])  # "Search the web for current information"
-
-# Get tool examples
-search_examples = [example for name, example in TOOL_EXAMPLES if name == "google_search"]
-print(search_examples[:3])  # First 3 search examples
-
-# Check negative examples
-print("hello" in NEGATIVE_EXAMPLES)  # True
-```
-
-**[↑ Back to Index](#module-index)**
-
----
-
-## [System Prompts (`prompts.py`)](#system-prompts-promptspy)
-**[↑ Back to Index](#module-index)**
-
-**Purpose**: System prompts and instructions for the Datahouse agent
-
-### Key Components
-
-#### `SYSTEM_PROMPT`
-The main system prompt that defines the agent's capabilities and behavior:
-
-```python
-SYSTEM_PROMPT = """You are Datahouse, an intelligent agent with web access capabilities. You can search for current information and analyze web content to provide accurate, up-to-date answers.
-
-Your capabilities:
-- Search the web for current information using Google Search
-- Retrieve and analyze content from web pages
-- Provide comprehensive, factual responses based on real-time data
-
-When users ask for current information, recent events, or need to verify facts, use your web access tools to provide accurate answers. For general knowledge questions that don't require current data, you can respond directly.
-
-Always be helpful, accurate, and transparent about your sources when using web tools."""
-```
-
-### Features
-- **Clear Capabilities**: Defines what the agent can do
-- **Tool Usage Guidelines**: When to use web tools vs. direct responses
-- **Transparency**: Emphasizes source attribution
-- **Concise Format**: Optimized for performance
-
-### Usage Example
-```python
-from agents.prompts import SYSTEM_PROMPT
-
-# Use in agent initialization
-from agents.core import DatahouseAgent, AgentConfig
-
-config = AgentConfig(system_prompt=SYSTEM_PROMPT)
-agent = DatahouseAgent(config)
-
-# Customize prompt
-custom_prompt = SYSTEM_PROMPT + "\n\nAdditional instruction: Always be concise."
-config = AgentConfig(system_prompt=custom_prompt)
+# Clear cache if needed
+cache.clear_cache()
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -458,67 +342,184 @@ config = AgentConfig(system_prompt=custom_prompt)
 ### Key Components
 
 #### `ValidationResult` Dataclass
-```python
-@dataclass
-class ValidationResult:
-    is_valid: bool
-    validated_params: Dict[str, Any]
-    errors: List[str]
-```
-- **Purpose**: Result of parameter validation
-- **Fields**: Validation status, validated parameters, and error messages
+Container for validation results with status, validated parameters, and error messages.
 
 ### Core Functions
 
-#### Text Processing
-- `extract_query_from_message(message)`: Remove search words from message
-- `extract_urls_from_text(text)`: Extract all URLs using regex
-- `extract_first_url_from_text(text)`: Get first URL from text
+#### Text Processing Functions
+- `extract_query_from_message(message)`: Extract search query by removing common search words
+- `extract_urls_from_text(text)`: Extract all URLs from text using regex
+- `extract_first_url_from_text(text)`: Extract the first URL from text
 
-#### Type Conversion
-- `convert_value_to_type(value, target_type)`: Convert value to target type
-- `validate_and_convert_parameters(parameters, schema)`: Validate and convert parameters
+#### Type Conversion Functions
+- `convert_value_to_type(value, target_type)`: Convert value to target type with error handling
+- `validate_and_convert_parameters(parameters, schema)`: Validate and convert parameters according to schema
 
-#### Parameter Extraction
-- `extract_parameters_simple(message, schema)`: Simple parameter extraction
-- `validate_parameters(parameters, schema)`: Legacy validation function
-
-### Constants
-```python
-SEARCH_WORDS = ["search for", "search about", "find", "look up", "get", "show me", "what is", "who is"]
-URL_PATTERN = r'https?://[^\s]+'
-```
+#### Parameter Extraction Functions
+- `extract_parameters_simple(message, schema)`: Simple parameter extraction as fallback
+- `validate_parameters(parameters, schema)`: Legacy validation function for backward compatibility
 
 ### Usage Example
 ```python
 from utilities.agent_utils import (
     extract_query_from_message,
-    extract_first_url_from_text,
-    convert_value_to_type,
-    validate_and_convert_parameters
+    extract_urls_from_text,
+    validate_and_convert_parameters,
+    ValidationResult
 )
 
-# Extract query
-query = extract_query_from_message("search for python tutorials")
-print(query)  # "python tutorials"
+# Text processing
+query = extract_query_from_message("search for python tutorials online")
+print(query)  # "python tutorials online"
 
-# Extract URL
-url = extract_first_url_from_text("Check out https://example.com for more info")
-print(url)  # "https://example.com"
+urls = extract_urls_from_text("Check out https://example.com and https://test.com")
+print(urls)  # ['https://example.com', 'https://test.com']
+
+# Parameter validation
+params = {"query": "test", "limit": "10", "enabled": "true"}
+schema = {
+    "query": {"type": str, "required": True, "description": "Search query"},
+    "limit": {"type": int, "required": False, "default": 5, "description": "Result limit"},
+    "enabled": {"type": bool, "required": False, "default": True, "description": "Enable feature"}
+}
+
+result = validate_and_convert_parameters(params, schema)
+if result.is_valid:
+    print(f"Validated params: {result.validated_params}")
+    # Output: {'query': 'test', 'limit': 10, 'enabled': True}
+else:
+    print(f"Validation errors: {result.errors}")
 
 # Type conversion
 value = convert_value_to_type("42", int)
 print(value)  # 42
 
-# Parameter validation
-params = {"query": "test", "limit": "10"}
-schema = {
-    "query": {"type": str, "required": True},
-    "limit": {"type": int, "required": False, "default": 5}
+value = convert_value_to_type("3.14", float)
+print(value)  # 3.14
+
+value = convert_value_to_type("true", bool)
+print(value)  # True
+```
+
+**[↑ Back to Index](#module-index)**
+
+---
+
+## [Tool Configuration (`tool_config.py`)](#tool-configuration-tool_configpy)
+**[↑ Back to Index](#module-index)**
+
+**Purpose**: Configuration-driven tool registration and example management
+
+### Key Components
+
+#### `TOOL_REGISTRY`
+Pre-configured tool registry with built-in tools like `google_search` and `get_page`.
+
+#### `TOOL_EXAMPLES`
+Positive examples for semantic matching to train the tool selector.
+
+#### `NEGATIVE_EXAMPLES`
+Examples that should NOT trigger tools (general conversation, AI questions, etc.).
+
+### Usage Example
+```python
+from agents.tool_config import TOOL_REGISTRY, TOOL_EXAMPLES, NEGATIVE_EXAMPLES
+
+# Access built-in tools
+search_tool = TOOL_REGISTRY["google_search"]
+print(search_tool["description"])  # "Search the web for current information"
+
+# Get tool schema
+schema = search_tool["parameter_schema"]
+required_params = [k for k, v in schema.items() if v['required']]
+print(f"Required parameters: {required_params}")  # ['query']
+
+# Work with tool examples
+search_examples = [example for name, example in TOOL_EXAMPLES if name == "google_search"]
+print(f"Search examples: {search_examples[:3]}")
+
+# Check negative examples
+query = "hello"
+if query in NEGATIVE_EXAMPLES:
+    print("This query should not trigger any tools")
+
+# Add custom tools to registry
+def custom_tool_function(param1: str, param2: int = 10):
+    return f"Processing {param1} with {param2}"
+
+custom_schema = {
+    "param1": {"type": str, "required": True, "description": "First parameter"},
+    "param2": {"type": int, "required": False, "default": 10, "description": "Second parameter"}
 }
-result = validate_and_convert_parameters(params, schema)
-print(result.is_valid)  # True
-print(result.validated_params)  # {'query': 'test', 'limit': 10}
+
+TOOL_REGISTRY["custom_tool"] = {
+    "function": custom_tool_function,
+    "parameter_schema": custom_schema,
+    "description": "Custom tool description"
+}
+
+# Add examples for new tool
+TOOL_EXAMPLES.extend([
+    ("custom_tool", "use custom tool with parameter"),
+    ("custom_tool", "process with custom tool"),
+])
+```
+
+**[↑ Back to Index](#module-index)**
+
+---
+
+## [System Prompts (`prompts.py`)](#system-prompts-promptspy)
+**[↑ Back to Index](#module-index)**
+
+**Purpose**: System prompts and instructions for the Datahouse agent
+
+### Key Components
+
+#### `SYSTEM_PROMPT`
+The main system prompt that defines the agent's capabilities and behavior.
+
+### Usage Example
+```python
+from agents.prompts import SYSTEM_PROMPT
+from agents.core import DatahouseAgent, AgentConfig
+
+# Use default system prompt
+config = AgentConfig(system_prompt=SYSTEM_PROMPT)
+agent = DatahouseAgent(config)
+
+# Customize the prompt
+custom_prompt = SYSTEM_PROMPT + """
+
+Additional guidelines:
+- Always provide detailed explanations
+- Include relevant code examples when appropriate
+- Verify information from multiple sources
+"""
+
+config = AgentConfig(system_prompt=custom_prompt)
+agent = DatahouseAgent(config)
+
+# Create specialized prompts
+research_prompt = """You are Datahouse, a research assistant with web access capabilities.
+
+Your primary focus is on:
+- Comprehensive research and analysis
+- Source verification and validation
+- Detailed, well-structured responses
+- Academic and professional standards
+
+When conducting research:
+1. Use multiple sources for verification
+2. Provide detailed citations
+3. Include relevant context and background
+4. Highlight any limitations or uncertainties
+
+Always be thorough, accurate, and transparent about your sources."""
+
+# Use specialized prompt
+config = AgentConfig(system_prompt=research_prompt)
+research_agent = DatahouseAgent(config)
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -633,7 +634,7 @@ if not cache_info['tool_cache_valid']:
 #### Parameter Extraction Issues
 ```python
 # Use fallback extraction
-from agents.utils import extract_parameters_simple
+from utilities.agent_utils import extract_parameters_simple
 params = extract_parameters_simple(message, schema)
 
 # Check LLM availability
