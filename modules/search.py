@@ -6,10 +6,12 @@ from pathlib import Path
 import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+import logging
 
 from utilities.env import CUSTOM_SEARCH_API_KEY, PROGRAMMABLE_SEARCH_ENGINE_ID
-from utilities.logger import logger
 from utilities.tool_decorator import tool
+
+logger = logging.getLogger(__name__)
 
 class SearchResult(TypedDict):
     """Typed dictionary for search result items."""
