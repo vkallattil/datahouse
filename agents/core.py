@@ -27,11 +27,11 @@ class DatahouseAgent:
         self.config = config or AgentConfig()
         self.client = OpenAI()
         self.tool_registry = ToolRegistry(self.client, self.config.cache_dir)
-        self.messages = [Message("system", self.config.system_prompt)]
+        self.messages = [Message("developer", self.config.system_prompt)]
     
     def clear_messages(self) -> None:
         """Clear chat history, keeping system prompt."""
-        self.messages = [Message("system", self.config.system_prompt)]
+        self.messages = [Message("developer", self.config.system_prompt)]
     
     def process(self, message: str) -> str:
         """Process user message and return tool selection or response."""
