@@ -7,7 +7,6 @@ The `/agents` module is the core intelligence layer of the Datahouse system, pro
 ## Module Index
 
 - [Core Agent (`core.py`)](#core-agent-corepy)
-- [Tool Selector (`tool_selector.py`)](#tool-selector-tool_selectorpy)
 - [Tool Registry (`tool_registry.py`)](#tool-registry-tool_registrypy)
 - [Parameter Extractor (`parameter_extractor.py`)](#parameter-extractor-parameter_extractorpy)
 - [Embedding Cache (`embedding_cache.py`)](#embedding-cache-embedding_cachepy)
@@ -23,9 +22,7 @@ The agents module follows a layered architecture:
 ┌─────────────────┐
 │   DatahouseAgent│ ← Main entry point
 ├─────────────────┤
-│  Tool Selector  │ ← Semantic tool selection
-├─────────────────┤
-│ Tool Registry   │ ← Tool management & execution
+│  Tool Registry  │ ← Unified tool management (selection, registration, execution)
 ├─────────────────┤
 │Parameter Extractor│ ← LLM-based parameter extraction
 ├─────────────────┤
@@ -93,10 +90,18 @@ print(f"Available tools: {info['available_tools']}")
 
 ---
 
-## [Tool Selector (`tool_selector.py`)](#tool-selector-tool_selectorpy)
+## [Tool Registry (`tool_registry.py`)](#tool-registry-tool_registrypy)
 **[↑ Back to Index](#module-index)**
 
-**Purpose**: Semantic tool selection using embeddings and similarity matching
+**Purpose**: Unified tool management system combining semantic selection, registration, validation, and execution
+
+### Key Features
+- **Semantic Tool Selection**: LLM-powered tool selection using embeddings
+- **Dynamic Registration**: Add/remove tools at runtime
+- **Parameter Validation**: Schema-based validation with type conversion
+- **LLM Integration**: Intelligent parameter extraction
+- **Embedding Caching**: Performance optimization with persistent cache
+- **Error Handling**: Comprehensive error management
 
 ### Key Components
 
@@ -106,64 +111,16 @@ Container for embeddings and data hash for cache validation.
 #### `UnifiedCacheManager` Class
 Unified cache management for both tool and negative embeddings with save/load operations.
 
-#### `ToolSelector` Class
-Main tool selection component using semantic similarity with OpenAI embeddings.
+#### `ToolRegistry` Class
+Unified tool management system that combines semantic selection, registration, validation, and execution.
 
 **Key Methods:**
-- `select_tool(message, threshold, max_tools)`: Select appropriate tools for user message
-- `clear_cache()`: Clear all cached embeddings
-- `get_cache_info()`: Get comprehensive cache information
-
-### Usage Example
-```python
-from agents.tool_selector import ToolSelector
-from openai import OpenAI
-
-# Initialize tool selector with OpenAI client
-client = OpenAI(api_key="your-api-key")
-selector = ToolSelector(client, cache_dir="embeddings_cache")
-
-# Select tools for user message
-tools = selector.select_tool(
-    "find the latest news about climate change",
-    threshold=0.5,
-    max_tools=3
-)
-
-for tool_name, similarity_score in tools:
-    print(f"{tool_name}: {similarity_score:.3f}")
-
-# Manage cache
-cache_info = selector.get_cache_info()
-print(f"Embedding count: {cache_info['embedding_count']}")
-print(f"Cache size: {cache_info['tool_cache_size']} bytes")
-
-# Clear cache if needed
-selector.clear_cache()
-```
-
-**[↑ Back to Index](#module-index)**
-
----
-
-## [Tool Registry (`tool_registry.py`)](#tool-registry-tool_registrypy)
-**[↑ Back to Index](#module-index)**
-
-**Purpose**: Dynamic tool registration, validation, and execution
-
-### Key Features
-- **Dynamic Registration**: Add/remove tools at runtime
-- **Parameter Validation**: Schema-based validation with type conversion
-- **LLM Integration**: Intelligent parameter extraction
-- **Error Handling**: Comprehensive error management
-
-### `ToolRegistry` Class
-Manages tool registration, parameter extraction, validation, and execution.
-
-**Key Methods:**
+- `select_tool(message, threshold, max_tools)`: Select appropriate tools using semantic similarity
 - `register_tool(name, function, schema, description)`: Register new tools
 - `extract_parameters(message, tool_name)`: Extract parameters using LLM or fallback
 - `execute_tool(tool_name, parameters)`: Execute tools with validation
+- `clear_cache()`: Clear all cached embeddings
+- `get_cache_info()`: Get comprehensive cache information
 - `get_tool_info()`: Get information about all registered tools
 
 ### Usage Example
@@ -171,9 +128,19 @@ Manages tool registration, parameter extraction, validation, and execution.
 from agents.tool_registry import ToolRegistry
 from openai import OpenAI
 
-# Initialize registry with OpenAI client for LLM extraction
+# Initialize registry with OpenAI client for LLM extraction and semantic selection
 client = OpenAI(api_key="your-api-key")
-registry = ToolRegistry(client)
+registry = ToolRegistry(client, cache_dir="embeddings_cache")
+
+# Select tools for user message using semantic similarity
+tools = registry.select_tool(
+    "find the latest news about climate change",
+    threshold=0.5,
+    max_tools=3
+)
+
+for tool_name, similarity_score in tools:
+    print(f"{tool_name}: {similarity_score:.3f}")
 
 # Register a custom tool
 def stock_price_tool(symbol: str, exchange: str = "NASDAQ"):
@@ -204,6 +171,14 @@ else:
 tool_info = registry.get_tool_info()
 for name, info in tool_info.items():
     print(f"{name}: {info['description']}")
+
+# Manage cache
+cache_info = registry.get_cache_info()
+print(f"Embedding count: {cache_info['embedding_count']}")
+print(f"Cache size: {cache_info['tool_cache_size']} bytes")
+
+# Clear cache if needed
+registry.clear_cache()
 ```
 
 **[↑ Back to Index](#module-index)**
@@ -562,10 +537,10 @@ agent.register_tool("weather", custom_weather_function, weather_schema, "Get wea
 ### Cache Management
 ```python
 # Clear all caches
-agent.tool_selector.clear_cache()
+agent.tool_registry.clear_cache()
 
 # Get cache information
-cache_info = agent.tool_selector.get_cache_info()
+cache_info = agent.tool_registry.get_cache_info()
 print(f"Cache size: {cache_info['tool_cache_size']} bytes")
 ```
 
@@ -593,8 +568,8 @@ print(f"Cache size: {cache_info['tool_cache_size']} bytes")
 ```python
 # Test tool selection
 def test_tool_selection():
-    selector = ToolSelector(mock_client, "test_cache")
-    tools = selector.select_tool("search for information")
+    registry = ToolRegistry(mock_client, "test_cache")
+    tools = registry.select_tool("search for information")
     assert len(tools) > 0
     assert tools[0][0] == "google_search"
 
@@ -623,10 +598,10 @@ def test_agent_workflow():
 #### Cache Problems
 ```python
 # Clear cache if corrupted
-agent.tool_selector.clear_cache()
+agent.tool_registry.clear_cache()
 
 # Check cache validity
-cache_info = agent.tool_selector.get_cache_info()
+cache_info = agent.tool_registry.get_cache_info()
 if not cache_info['tool_cache_valid']:
     print("Cache invalid, rebuilding...")
 ```
@@ -672,9 +647,10 @@ else:
 
 ## Summary
 
-The `/agents` module provides a comprehensive, optimized framework for intelligent tool selection and execution. With its modular architecture, performance optimizations, and extensive documentation, it serves as the foundation for the Datahouse system's AI capabilities.
+The `/agents` module provides a comprehensive, optimized framework for intelligent tool selection and execution. With its unified architecture, performance optimizations, and extensive documentation, it serves as the foundation for the Datahouse system's AI capabilities.
 
 **Key Strengths**:
+- **Unified Architecture**: Combined tool selection, registration, and execution
 - **Semantic Understanding**: LLM-powered tool selection
 - **Performance Optimized**: Caching and efficient algorithms
 - **Extensible**: Easy to add new tools and capabilities

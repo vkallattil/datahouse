@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from openai import OpenAI
 from typing import Dict, Any, List
 from .prompts import SYSTEM_PROMPT
-from .tool_selector import ToolSelector
 from .tool_registry import ToolRegistry
 
 @dataclass
@@ -27,8 +26,7 @@ class DatahouseAgent:
     def __init__(self, config: AgentConfig = None):
         self.config = config or AgentConfig()
         self.client = OpenAI()
-        self.tool_selector = ToolSelector(self.client, self.config.cache_dir)
-        self.tool_registry = ToolRegistry(self.client)
+        self.tool_registry = ToolRegistry(self.client, self.config.cache_dir)
         self.messages = [Message("system", self.config.system_prompt)]
     
     def clear_messages(self) -> None:
@@ -37,7 +35,7 @@ class DatahouseAgent:
     
     def process(self, message: str) -> str:
         """Process user message and return tool selection or response."""
-        selected_tools = self.tool_selector.select_tool(message)
+        selected_tools = self.tool_registry.select_tool(message)
         
         if not selected_tools:
             return "No specific tools needed for this request."
@@ -62,5 +60,5 @@ class DatahouseAgent:
         return {
             "available_tools": self.get_available_tools(),
             "tool_details": self.tool_registry.get_tool_info(),
-            "tool_selector_info": self.tool_selector.get_cache_info()
+            "cache_info": self.tool_registry.get_cache_info()
         }
