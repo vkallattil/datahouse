@@ -501,6 +501,58 @@ research_agent = DatahouseAgent(config)
 
 ---
 
+## Tool Decorator and Tool Marking
+
+**Purpose**: Explicitly distinguish between tool functions (meant for agent registration and use) and lower-level utility/helper functions in your modules.
+
+### The `@tool` Decorator
+
+A decorator is provided in `utilities/tool_decorator.py` to mark functions as tools:
+
+```python
+# utilities/tool_decorator.py
+def tool(func):
+    """Decorator to mark a function as a tool for agent registration."""
+    func._is_tool = True
+    return func
+```
+
+### Usage
+
+Mark any function intended to be registered as a tool with the `@tool` decorator:
+
+```python
+from utilities.tool_decorator import tool
+
+@tool
+def search_and_read(query: str) -> list:
+    # ... implementation ...
+    return results
+```
+
+Lower-level helper functions should **not** be decorated. This makes it clear which functions are tools and which are internal utilities.
+
+### Tool Registration Best Practice
+
+When registering tools (e.g., in `tool_config.py` or dynamically), only register functions that have the `_is_tool` attribute set to `True`:
+
+```python
+from modules.search import search_and_read
+
+if getattr(search_and_read, '_is_tool', False):
+    TOOL_REGISTRY = {
+        "search_and_read": {
+            "function": search_and_read,
+            "parameter_schema": { ... },
+            "description": "..."
+        }
+    }
+```
+
+This pattern prevents accidental registration of internal helpers and keeps your codebase clean and maintainable.
+
+---
+
 ## Integration Examples
 
 ### Complete Workflow
