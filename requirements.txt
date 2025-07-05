@@ -1,6 +1,6 @@
+# Python 3.7+
 openai
 numpy
-dataclasses
 requests
 bs4
 python-dotenv
