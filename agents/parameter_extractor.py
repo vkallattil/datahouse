@@ -12,7 +12,7 @@ from utilities.agent_utils import extract_query_from_message, extract_first_url_
 @dataclass
 class ExtractionConfig:
     """Configuration for parameter extraction."""
-    model: str = "gpt-3.5-turbo"
+    model: str = "gpt-4.1-nano"
     temperature: float = 0.1
     max_tokens: int = 200
     system_prompt: str = "You are a parameter extraction assistant. Extract parameters from user messages and return them as JSON."
