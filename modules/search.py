@@ -1,15 +1,13 @@
 """Google Custom Search API integration."""
 
 import json
-from typing import Dict, List, Optional, TypedDict
-from pathlib import Path
-import requests
-from urllib.parse import urlparse
-from bs4 import BeautifulSoup
 import logging
+import requests
+
+from typing import Dict, List, TypedDict
+from bs4 import BeautifulSoup
 
 from utilities.env import CUSTOM_SEARCH_API_KEY, PROGRAMMABLE_SEARCH_ENGINE_ID
-from utilities.tool_decorator import tool
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +108,6 @@ def extract_main_text(soup):
     # Collapse whitespace
     return ' '.join(text.split())
 
-@tool
 def search_and_read(query: str) -> List[Dict[str, str]]:
     """
     Perform a Google search and retrieve main content from the top 5 results.
