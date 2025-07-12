@@ -55,50 +55,6 @@ class StringResponse(Response):
         """
         return self.text
     
-@dataclass
-class MenuOption:
-    """Represents a single option in a menu.
-    
-    Attributes:
-        label: The text shown to the user for this option.
-        action: A callable that will be executed when this option is selected.
-    """
-    label: str
-    action: Callable[[], Any]
-    
-    def __str__(self) -> str:
-        """Return the label when converted to string.
-        
-        Returns:
-            The label text of this menu option.
-        """
-        return self.label
-
-class MenuResponse(Response):
-    """A response that presents a menu of options to the user.
-    
-    This type of response pauses command processing and displays an interactive
-    menu from which the user can select an option.
-    """
-    
-    def __init__(self, prompt: str, options: List[MenuOption]):
-        """Initialize with a prompt and list of options.
-        
-        Args:
-            prompt: The message displayed above the menu options.
-            options: A list of MenuOption instances to display.
-        """
-        self.prompt = prompt
-        self.options = options
-
-    def to_string(self) -> str:
-        """Generate a summary of the menu for logging purposes.
-        
-        Returns:
-            A string in the format: "[Menu] <prompt> (X options)"
-        """
-        return f"[Menu] {self.prompt} ({len(self.options)} options)"
-
 class CommandRegistry:
     """Registry for CLI commands with decorator-based registration.
     
@@ -143,15 +99,6 @@ class CommandRegistry:
             return self.commands[command](args)
         return None
 
-class CommandExit(Exception):
-    """Exception raised to signal that the CLI should exit.
-    
-    When raised from a command handler, this will cause the main loop to
-    terminate cleanly.
-    """
-    pass
-
-
 class CommandClear(Exception):
     """Exception raised to signal that the terminal should be cleared.
     
@@ -164,19 +111,6 @@ class CommandClear(Exception):
 registry = CommandRegistry()
 
 # Basic command implementations
-
-@registry.register("exit")
-def exit_command(args: str) -> Response:
-    """Exit the application.
-    
-    Args:
-        args: Ignored.
-        
-    Raises:
-        CommandExit: To signal the main loop to terminate.
-    """
-    raise CommandExit()
-
 @registry.register("clear")
 def clear_command(args: str) -> Response:
     """Clear the terminal screen.
@@ -200,72 +134,3 @@ def help_command(args: str) -> Response:
     help_text = "Available commands:\n"
     help_text += "\n".join(f"  /{cmd}" for cmd in commands)
     return StringResponse(help_text)
-
-@registry.register("echo")
-def echo_command(args: str) -> Response:
-    """Echo the provided arguments back to the user.
-    
-    Args:
-        args: The text to echo back.
-        
-    Returns:
-        A StringResponse containing the input text.
-        
-    Example:
-        /echo Hello, world!
-    """
-    return StringResponse(args)
-
-@registry.register("search")
-def search_command(args: str) -> Response:
-    """
-    Perform a web search using Google Custom Search.
-    
-    Args:
-        args: The search query string.
-        
-    Returns:
-        A StringResponse with search results or an error message.
-        
-    Example:
-        /search python data analysis
-    """
-    if not args.strip():
-        return StringResponse("Please provide a search query. Example: /search python data analysis")
-    
-    try:
-        results = google_search(args)
-        if not results:
-            return StringResponse("No results found for your search.")
-            
-        # Format the first 10 results as a menu
-        menu_options = []
-        for i, result in enumerate(results[:10], 1):
-            # Truncate the title for the menu display
-            title = result.get('title', 'No title')
-            if len(title) > 60:
-                title = title[:57] + '...'
-                
-            menu_options.append(MenuOption(
-                label=title,
-                action=lambda r=result: webbrowser.open(r.get('link', ''))
-            ))
-        
-        # Add a back option to the menu
-        menu_options.append(
-            MenuOption(
-                label="Back to search results",
-                action=lambda: MenuResponse(
-                    prompt=f"Search results for: {args}",
-                    options=menu_options
-                )
-            )
-        )
-        
-        return MenuResponse(
-            prompt=f"Search results for: {args}",
-            options=menu_options
-        )
-        
-    except Exception as e:
-        return StringResponse(f"Error performing search: {str(e)}")
