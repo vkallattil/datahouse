@@ -65,7 +65,7 @@ def display_initial_prompt() -> None:
     """
     print("=" * 50)
     print("Type '/help' to see available commands.")
-    print("Type '/exit' to quit the application.")
+    print("Otherwise type your query.")
     print("=" * 50 + "\n")
 
 def run_assistant_cli() -> None:
@@ -104,4 +104,4 @@ def run_assistant_cli() -> None:
             
         except Exception as e:
             print(f"An error occurred: {e}")
-            print("Type '/help' for assistance or '/exit' to quit.")
+            print("Type '/help' for assistance.")
