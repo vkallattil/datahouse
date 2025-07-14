@@ -1,58 +1,66 @@
-from dataclasses import dataclass
 from openai import OpenAI
 import logging
-from pydantic import BaseModel
 from typing import Literal
 from datetime import datetime
+from modules.search import search_and_read
 import json
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = f"""
-Context:
-Current time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-
+SYSTEM_PROMPT = """
 Instructions:
-Determine if the user's query can be resolved with the model's knowledge base up until October 2023. If so, return no instructions. Otherwise, return a set of instructions that will be executed to resolve the user's query step by step.
+Respond to the user as if you are a helpful assistant.
 """
-
-@dataclass
-class Message:
-    role: str
-    content: str    
-
-class SearchInstruction(BaseModel):
-    name: Literal["search_and_read"]
-    description: Literal["Search the web for information beyond your October 2023 training cutoff."]
-
-class Instructions(BaseModel):
-    instructions: list[SearchInstruction]
 
 class DatahouseAgent:
     def __init__(self):
         self.client = OpenAI()
-        self.messages = [Message("developer", SYSTEM_PROMPT)]
+        self.messages = [{"role": "developer", "content": SYSTEM_PROMPT}]
+        self.tools = [{
+            "type": "function",
+            "function": {
+                "name": "search_and_read",
+                "description": "Search the web for up to date information.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"}
+                    },
+                    "required": ["query"],
+                    "additionalProperties": False
+                },
+                "strict": True
+            }
+        }]
     
     def clear_messages(self) -> None:
-        self.messages = [Message("developer", SYSTEM_PROMPT)]
-
-    def add_message(self, message: Message) -> None:
-        # Add message with timestamp
-        self.messages.append(Message(message.role, message.content + f"\n\nTimestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
+        self.messages = [{"role": "developer", "content": SYSTEM_PROMPT}]
 
     def process(self, message: str) -> str:
-        self.add_message(Message("user", message))
-        
-        completion = self.client.chat.completions.parse(
-            model="gpt-4.1-nano",
-            messages=[{"role": m.role, "content": m.content} for m in self.messages],
-            response_format=Instructions
-        )
+        self.messages.append({"role": "user", "content": f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: {message}"})
+                
+        while True:
+            completion = self.client.chat.completions.create(
+                model="gpt-4.1-nano",
+                messages=self.messages,
+                tools=self.tools,
+            )
 
-        instructions = completion.choices[0].message.parsed.instructions
+            if (completion.choices[0].message.tool_calls != None and completion.choices[0].message.tool_calls != []):
+                self.messages.append(completion.choices[0].message)
+                
+                for tool_call in completion.choices[0].message.tool_calls:
+                    args = json.loads(tool_call.function.arguments)
+                    function_name = tool_call.function.name
 
-        response = json.dumps([i.model_dump() for i in instructions], indent=2)
+                    print("Calling tool: ", function_name, " with arguments: ", args)
 
-        self.add_message(Message("assistant", response))
-        
-        return response
+                    result = eval(function_name)(**args)
+
+                    self.messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": str(result)})
+            
+            elif (completion.choices[0].message.content != None):
+                self.messages.append(completion.choices[0].message)
+                break
+
+        return self.messages[-1].content
