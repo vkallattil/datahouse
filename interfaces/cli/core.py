@@ -22,11 +22,8 @@ def handle_input(user_input: str) -> Response:
             
         return StringResponse(f"Unknown command: {command}")
     
-    try:
-        response = datahouse_agent.process(user_input)
-        return StringResponse(response)
-    except Exception as e:
-        return StringResponse(f"Error generating CLI response: {str(e)}")
+    response = datahouse_agent.process(user_input)
+    return StringResponse(response)
 
 def display_initial_prompt() -> None:
     print("=" * 50)
@@ -55,4 +52,3 @@ def run_assistant_cli() -> None:
             
         except Exception as e:
             print(f"An error occurred: {e}")
-            print("Type '/help' for assistance.")
