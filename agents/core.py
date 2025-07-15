@@ -82,6 +82,9 @@ class DatahouseAgent:
         response_completed = False # Indicator for if user message response cycle is complete
 
         while not response_completed:
+            print("Starting stream...")
+
+            print(json.dumps(self.messages, indent=2))
 
             stream = self.client.chat.completions.create(
                 model="gpt-4.1-nano",
@@ -104,10 +107,9 @@ class DatahouseAgent:
                         index = tool_call.index
 
                         if index not in final_tool_calls:
-                            final_tool_calls[index] = tool_call
-                            self.messages.append(chunk.choices[0].delta)
+                            final_tool_calls[index] = {"tool_call": tool_call, "message": json.loads(json.dumps(chunk.choices[0].delta, default=lambda o: o.__dict__))}
 
-                        final_tool_calls[index].function.arguments += tool_call.function.arguments
+                        final_tool_calls[index]["tool_call"].function.arguments += tool_call.function.arguments
 
                         yield tool_call.function.arguments
                     
@@ -119,17 +121,21 @@ class DatahouseAgent:
                 elif delta_calls == None and delta_content == None and len(final_tool_calls.values()) > 0:
                     print()
                     for tool_call in final_tool_calls.values():
-                        tool_name = tool_call.function.name
-                        tool_args = tool_call.function.arguments
+                        print("Calling tool: " + tool_call["tool_call"].function.name + "...")
+                        tool_name = tool_call["tool_call"].function.name
+                        tool_args = tool_call["tool_call"].function.arguments
 
                         result = eval(tool_name)(tool_args)
+                        
+                        self.messages.append({**tool_call["message"], "role": "assistant"})
 
-                        self.messages.append({"role": "tool", "content": str(result), "tool_call_id": tool_call.id})
+                        self.messages.append({"role": "tool", "tool_call_id": tool_call["tool_call"].id, "content": str(result)})
 
+                    print("Tool calls completed.")
                     final_tool_calls = {}
 
-                else: response_completed = True
-
-
+                elif delta_calls == None and delta_content == None and response_message != "":
+                    print("Response completed.") 
+                    response_completed = True
 
         self.messages.append({"role": "assistant", "content": response_message})
