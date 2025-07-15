@@ -1,29 +1,10 @@
-# Datahouse: Enterprise Operating System
-
-## 🚀 Vision
-Build an enterprise-grade operating system for the tech company of the future, capable of:
-- **Autonomous agent-team software development**
-  - Manage and track development progress across multiple interfaces
-  - Streamline in-house development workflows
-  - Enable seamless collaboration between team members
-
-- **Administrative automation**
-  - Priority tracking and task management
-  - Calendar and schedule management
-  - Financial planning and reporting
-  - Automated job scheduling
-  - Email and message drafting
-
-## 🛠️ Setup
-
 ### Prerequisites
 - Python 3.9+
 - pip (Python package manager)
 
 ### Installation
-1. Clone the repository:
+1. Change directory to datahouse:
    ```bash
-   git clone <repository-url>
    cd datahouse
    ```
 
@@ -43,19 +24,18 @@ Build an enterprise-grade operating system for the tech company of the future, c
 python main.py
 ```
 
-## 📂 Project Structure
+### 📂 Project Structure
 ```
 datahouse/
-├── interfaces/      # User interface components
-│   ├── cli/        # Command Line Interface
-│   └── api/        # (Future) API interface
+├── agents/         # Agent Logic 
+├── interfaces/
+│   ├── cli/        # Command Line Interface Logic
+│   └── api/        # (Future) API Interface Logic
 ├── modules/        # Core functionality modules
-│   └── language/   # Language processing capabilities
+│   ├── notes.py    # Notes Module
+│   └── search.py   # Search Module
 ├── utilities/      # Shared utilities
-│   ├── config/     # Configuration management
-│   └── logger.py   # Logging functionality
-├── data/           # Data storage
-├── logs/           # Log files
+│   ├── env.py      # Environment variables
 └── main.py         # Entry point
 ```
 ---
