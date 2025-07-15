@@ -1,5 +1,7 @@
 import os
 import asyncio
+import traceback
+import json
 from prompt_toolkit import prompt
 from interfaces.cli.commands import (
     registry, CommandClear, StringResponse, Response
@@ -54,3 +56,4 @@ def run_assistant_cli() -> None:
             
         except Exception as e:
             print(f"An error occurred: {e}")
+            traceback.print_exc()
