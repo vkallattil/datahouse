@@ -1,4 +1,5 @@
 import os
+import asyncio
 from prompt_toolkit import prompt
 from interfaces.cli.commands import (
     registry, CommandClear, StringResponse, Response
@@ -7,23 +8,26 @@ from agents.core import DatahouseAgent
 
 datahouse_agent = DatahouseAgent()
 
-def handle_input(user_input: str) -> Response:
+async def handle_input(user_input: str) -> None:
     if not user_input:
-        return StringResponse("")
-        
+        print("")
+        return
+
     if user_input.startswith('/'):
         parts = user_input[1:].split(maxsplit=1)
         command = parts[0].lower()
         args = parts[1] if len(parts) > 1 else ""
-        
         response = registry.execute(command, args)
         if response is not None:
-            return response
-            
-        return StringResponse(f"Unknown command: {command}")
+            print(response.to_string())
+            return
+        print(f"Unknown command: {command}")
+        return
     
-    response = datahouse_agent.process(user_input)
-    return StringResponse(response)
+    async for chunk in datahouse_agent.process(user_input):
+        print(chunk, end="", flush=True)
+    
+    print()
 
 def display_initial_prompt() -> None:
     print("=" * 50)
@@ -41,9 +45,7 @@ def run_assistant_cli() -> None:
             if not user_input:
                 continue
 
-            response = handle_input(user_input)
-
-            print("\n" + response.to_string() + "\n")
+            asyncio.run(handle_input(user_input))
             
         except CommandClear:
             os.system('cls' if os.name == 'nt' else 'clear')
