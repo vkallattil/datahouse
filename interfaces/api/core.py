@@ -6,4 +6,4 @@ datahouse_agent = DatahouseAgent()
 
 @app.route("/datahouse")
 def connect_to_agent():
-    return ""
+    return "CONNECT"
