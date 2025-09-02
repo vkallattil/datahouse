@@ -9,7 +9,7 @@ from modules.notes import read_notes, write_notes
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = "Respond to the user as if you are a helpful assistant."
+SYSTEM_PROMPT = "Respond to the user as if you are a helpful assistant. Be conversational unless the prompt directs you to be more structural."
 
 async def async_stream_wrapper(sync_stream):
     loop = asyncio.get_event_loop()
