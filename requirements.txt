@@ -6,3 +6,4 @@ bs4
 python-dotenv
 prompt_toolkit
 flask
+flask-socketio

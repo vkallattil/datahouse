@@ -1,9 +1,8 @@
 from flask import Flask
-from agents.core import DatahouseAgent
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
-datahouse_agent = DatahouseAgent()
+socketio = SocketIO(app)
 
-@app.route("/datahouse")
-def connect_to_agent():
-    return "CONNECT"
+if __name__ == '__main__':
+    socketio.run(app)
