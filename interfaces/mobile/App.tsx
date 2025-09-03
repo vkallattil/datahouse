@@ -76,9 +76,25 @@ export default function App() {
       style={styles.container}
     >
       <Text>Socket: {status}</Text>
-      <ScrollView style={styles.messagesContainer}>
+      <ScrollView 
+        style={styles.messagesContainer}
+        contentContainerStyle={styles.messagesContent}
+      >
         {chatMessages.map((message, index) => (
-          <Text key={index}>{message.author}: {message.content}</Text>
+          <View 
+            key={index} 
+            style={[
+              styles.messageBubble,
+              message.author === 'client' ? styles.userBubble : styles.assistantBubble
+            ]}
+          >
+            <Text style={[
+              styles.messageText,
+              message.author === 'client' && styles.userMessageText
+            ]}>
+              {message.content}
+            </Text>
+          </View>
         ))}
       </ScrollView>
       <View style={styles.inputContainer}>
@@ -106,29 +122,62 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 10,
     paddingTop: 60,
-    paddingBottom: 20,
   },
   messagesContainer: {
     flex: 1,
-    width: '100%',
-    paddingHorizontal: 10,
     marginBottom: 10,
+  },
+  messagesContent: {
+    padding: 10,
+  },
+  messageBubble: {
+    maxWidth: '80%',
+    padding: 12,
+    borderRadius: 18,
+    marginVertical: 4,
+  },
+  userBubble: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#007AFF',
+    borderTopRightRadius: 4,
+  },
+  assistantBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#e5e5ea',
+    borderTopLeftRadius: 4,
+  },
+  messageText: {
+    fontSize: 16,
+  },
+  userMessageText: {
+    color: 'white',
   },
   inputContainer: {
     flexDirection: 'row',
-    padding: 20,
-    width: '100%',
-    alignItems: 'center',
+    padding: 10,
+    paddingBottom: 30
   },
   input: {
     flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 20,
     padding: 10,
     marginRight: 10,
+    backgroundColor: '#fff',
+  },
+  button: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
